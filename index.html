@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171724">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Step Scratchers — Playable Prototype</title>
+<meta name="description" content="A quiet, ad-free walking-powered scratcher game prototype.">
+<style>
+:root { color-scheme: dark; --bg:#12131d; --surface:#222437; --surface2:#2c2d45; --edge:#43445d; --ink:#f8f7ff; --muted:#b2b4c9; --gold:#ffd580; --pink:#ff92bd; --teal:#8ff3da; --purple:#a8a3ff; --success:#93edab; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html,body { margin:0; padding:0; min-height:100%; background:var(--bg); color:var(--ink); font-family:ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+body { background: radial-gradient(ellipse at 10% -5%, #333054 0, transparent 44%), radial-gradient(ellipse at 100% 35%, #1e3441 0, transparent 38%),var(--bg); }
+button { font:inherit; cursor:pointer; touch-action:manipulation; color:inherit; }
+button:disabled { opacity:.4; cursor:not-allowed; }
+button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+#app { max-width:570px; margin:0 auto; min-height:100dvh; padding: max(16px, env(safe-area-inset-top)) 16px calc(35px + env(safe-area-inset-bottom)); }
+.topbar { display:flex; gap:10px; align-items:center; justify-content:space-between; padding-bottom:8px; }
+.brand { font-size:23px; font-weight:900; letter-spacing:-.9px; }
+.brand span { color:var(--gold); }
+.kicker { font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--teal); font-weight:800; margin-bottom:5px; }
+.demo { border-radius:999px; padding:6px 9px; font-size:10px; letter-spacing:.4px; color:var(--muted); border:1px solid var(--edge); white-space:nowrap; }
+.wallet { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:14px 0 12px; }
+.stat { padding:13px 15px; border:1px solid var(--edge); border-radius:15px; background:rgba(45,45,67,.72); }
+.stat small { display:block; color:var(--muted); font-size:11px; letter-spacing:.2px; margin-bottom:6px; }
+.stat strong { font-size:26px; font-weight:850; letter-spacing:-.7px; }
+.stat em { font-style:normal; color:var(--muted); font-size:11px; margin-left:3px; }
+.nav { display:grid; grid-template-columns:repeat(3,1fr); background:#28283b; border:1px solid var(--edge); padding:4px; border-radius:14px; gap:4px; margin-bottom:17px; }
+.nav button { background:transparent; border:0; border-radius:10px; padding:10px 2px; font-size:13px; color:var(--muted); font-weight:750; }
+.nav button.active { background:linear-gradient(145deg,#504374,#393856); color:white; box-shadow:0 2px 7px #08071366; }
+.card { background:linear-gradient(145deg,#2a2941,#222538); border:1px solid var(--edge); border-radius:19px; padding:17px; margin:12px 0; box-shadow:0 7px 22px #0b0b1545; }
+.card.soft { background:rgba(39,40,61,.7); }
+.sectionline { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:13px; }
+h1,h2,h3,p { margin:0; }
+h1 { font-size:24px; font-weight:900; letter-spacing:-.5px; }
+h2 { font-size:20px; font-weight:850; letter-spacing:-.3px; }
+h3 { font-size:15px; font-weight:850; }
+.sub { color:var(--muted); font-size:13px; line-height:1.52; }
+.pill { font-size:11px; font-weight:800; letter-spacing:.2px; color:#171724; background:var(--gold); padding:5px 8px; border-radius:999px; white-space:nowrap; }
+.label { font-size:11px; text-transform:uppercase; letter-spacing:1.2px; font-weight:850; color:var(--muted); }
+.btn { border:0; background:linear-gradient(135deg,#ffc875,#ff9d84); color:#272033; border-radius:13px; min-height:44px; padding:11px 15px; font-size:14px; font-weight:900; box-shadow:0 5px 12px #11112388; }
+.btn.alt { background:#3c3a59; color:#f7f4ff; box-shadow:none; border:1px solid #595674; }
+.btn.ghost { background:transparent; color:var(--muted); border:1px solid var(--edge); box-shadow:none; }
+.btn.wide { width:100%; }
+.btn.tiny { padding:8px 10px; min-height:34px; font-size:12px; border-radius:9px; }
+.stack { display:flex; flex-direction:column; gap:9px; }
+.row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.price { font-size:13px; color:var(--gold); font-weight:800; }
+.select-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+.select-game { background:#2b2a43; border:2px solid #44435f; padding:15px 5px; min-height:128px; border-radius:15px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; }
+.select-game.selected { border-color:var(--gold); background:#3b3450; }
+.select-game .em { font-size:34px; }
+.select-game strong { font-size:13px; }
+.select-game small { font-size:10px; color:var(--muted); }
+.progress { width:100%; height:9px; background:#111421; border-radius:99px; overflow:hidden; margin:10px 0 7px; border:1px solid #313146; }
+.progress > div { height:100%; background:linear-gradient(90deg,#9ec7ff,#a9f3d7); border-radius:99px; transition:width .35s; }
+.callout { padding:10px 12px; background:#201f36; border-radius:11px; border:1px solid #42405a; color:#ddd9f5; font-size:12px; line-height:1.45; }
+.callout.good { border-color:#4c927b; background:#1d3536; }
+.callout.gold { border-color:#877047; background:#3b3331; }
+.board-bingo { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin:12px 0; }
+.bingo-head { background:#3a315a; border-radius:7px; font-weight:900; font-size:16px; text-align:center; padding:7px 2px; color:#e7d5ff; }
+.bingo-cell { aspect-ratio:1; min-height:44px; border:1px solid #55536c; border-radius:9px; background:#383954; display:flex; justify-content:center; align-items:center; font-size:18px; font-weight:850; position:relative; }
+.bingo-cell.hit { background:linear-gradient(145deg,#1e776f,#295d70); border-color:#64e2bf; }
+.bingo-cell.hit::after { content:'✓'; position:absolute; font-weight:900; font-size:12px; right:3px; bottom:0; color:#baffeb; }
+.bingo-cell.free { background:#846448; border-color:#fac57a; font-size:10px; }
+.crossword-board { display:grid; grid-template-columns:repeat(11,minmax(0,1fr)); gap:2px; margin:14px auto; width:min(100%,390px); }
+.crosscell { aspect-ratio:1; border-radius:3px; background:#37384d; border:1px solid #5c5b73; text-align:center; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:clamp(12px,3.3vw,17px); }
+.crosscell.blank { background:transparent; border:0; }
+.crosscell.hidden { color:#9292b0; }
+.crosscell.found { background:#286958; color:#d9fff4; border-color:#5dd0a5; }
+.match-board { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin:14px 0; }
+.symbol { aspect-ratio:1; display:flex; justify-content:center; align-items:center; border-radius:10px; background:#313248; border:1px solid #4c506c; font-size:25px; }
+.symbol.hidden { color:#565972; }
+.symbol.new { border-color:var(--gold); background:#574348; }
+.scratch-tray { position:relative; border:2px solid #b7abb8; border-radius:14px; min-height:138px; overflow:hidden; margin:14px 0 9px; background:linear-gradient(145deg,#1c3a4b,#302844); }
+.scratch-items { display:flex; justify-content:center; align-content:center; align-items:center; flex-wrap:wrap; gap:7px; min-height:138px; padding:15px; }
+.scratch-item { background:#d6eee3; color:#262634; border-radius:9px; min-width:39px; min-height:39px; padding:6px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; box-shadow:inset 0 -2px 0 #9cbab4; }
+.scratch-item.symbol-item { font-size:25px; }
+.scratch-tray canvas { touch-action:none; user-select:none; -webkit-user-select:none; display:block; position:absolute; inset:0; width:100%; height:100%; cursor:crosshair; }
+.ticket-top { background:linear-gradient(120deg,#604474,#49466c); border:1px dashed #b69acf; border-radius:12px; padding:13px; text-align:center; margin:11px 0; }
+.ticket-top strong { display:block; text-transform:uppercase; letter-spacing:1.6px; font-size:15px; }
+.ticket-top span { display:block; color:#e6dbf0; font-size:11px; margin-top:4px; }
+.kpi-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin:10px 0 12px; }
+.kpi { background:#202134; border-radius:10px; padding:10px 6px; text-align:center; }
+.kpi strong { display:block; font-size:20px; }
+.kpi small { display:block; color:var(--muted); font-size:10px; margin-top:3px; }
+.finish { text-align:center; padding:18px 6px; }
+.finish .em { font-size:50px; }
+.finish h2 { margin:7px 0 5px; }
+.big-amount { font-size:34px; font-weight:900; color:var(--gold); margin:10px 0; }
+.collect-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:15px 0; }
+.collect-item { min-height:90px; border:1px solid #4d4b68; border-radius:12px; display:flex; flex-direction:column; gap:5px; align-items:center; justify-content:center; text-align:center; background:#2e3048; padding:6px 3px; }
+.collect-item.unknown { background:#212336; border-style:dashed; }
+.collect-item .art { font-size:30px; }
+.collect-item small { font-size:10px; color:#c7c8d5; line-height:1.15; }
+.collect-item.unknown small { color:#666a87; }
+.pack-art { font-size:55px; text-align:center; padding:15px; }
+.pack-results { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+.pack-result { border-radius:13px; border:1px solid #6e647a; padding:15px 5px; text-align:center; background:linear-gradient(145deg,#38405e,#332c50); }
+.pack-result .art { font-size:41px; margin-bottom:7px; }
+.pack-result strong { display:block; font-size:13px; }
+.pack-result small { display:block; margin-top:5px; font-size:11px; color:#d4bfdf; }
+.notice { margin:12px 0; padding:11px 12px; border-radius:12px; font-size:12px; border:1px solid #737056; background:#433c37; color:#fff0cf; line-height:1.5; }
+.note { font-size:11px; line-height:1.5; color:var(--muted); }
+.rule { height:1px; background:var(--edge); margin:15px 0; }
+.bottom { margin-top:24px; padding-top:10px; font-size:11px; color:#8b8da3; text-align:center; line-height:1.5; }
+@media (max-width:355px){.brand{font-size:21px}.select-game{min-height:112px}.bingo-cell{min-height:38px;font-size:16px}.collect-item{min-height:78px}.scratch-item{min-width:34px;min-height:34px}.card{padding:13px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Quiet, static visual treatment: no flashing, bounce, transitions, or confetti. */
+:root { --bg:#16191e; --surface:#22282e; --surface2:#2a3137; --edge:#4b555c; --ink:#f2f1eb; --muted:#b5c0c3; --gold:#ddc89d; --pink:#ddc89d; --teal:#9ac3b8; --purple:#b9b8cf; --success:#a6d0b4; }
+*,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important;}
+body {background:var(--bg)!important;}
+.stat {background:var(--surface);}
+.nav {background:#242a30;}
+.nav button.active {background:#39434b;box-shadow:none;}
+.card {background:var(--surface);box-shadow:none;}
+.card.soft {background:#20262c;}
+.btn {background:#ddc89d;color:#262923;box-shadow:none;}
+.btn.alt {background:#343e45;color:var(--ink);border:1px solid #59646a;}
+.select-game {background:#293139;border-color:var(--edge);}
+.select-game.selected {background:#343d44;border-color:var(--gold);}
+.progress > div {background:#9ac3b8;}
+.callout {background:#293139;border-color:var(--edge);color:var(--ink);}
+.callout.good {background:#2c3a35;border-color:#627b6f;}
+.callout.gold {background:#38362f;border-color:#766d55;}
+.bingo-head {background:#3a424a;color:var(--ink);}
+.bingo-cell {background:#2e363d;border-color:#536069;}
+.bingo-cell.hit {background:#345d55;border-color:#81b6a3;}
+.bingo-cell.free {background:#645844;border-color:#c5b18d;}
+.crosscell {background:#343c43;border-color:#687178;}
+.crosscell.found {background:#35584c;border-color:#77a994;color:#f1fbf5;}
+.symbol {background:#2f383f;border-color:#58646b;}
+.symbol.new {background:#484338;border-color:#aa9672;}
+.scratch-tray {background:#2b343a;border-color:#8d999c;}
+.scratch-item {background:#d4dfd9;box-shadow:none;}
+.ticket-top {background:#353d44;border:1px dashed #7c8990;}
+.ticket-top span {color:#d1d8d6;}
+.kpi {background:#2a3238;}
+.collect-item {background:#30393f;border-color:#59676d;}
+.collect-item.unknown {background:#272f35;}
+.pack-result {background:#303a42;border-color:#607078;}
+.notice {background:#39362e;border-color:#756a56;color:#f6e9cc;}
+
+</style>
+</head>
+<body><div id="app"><div class="card"><h2>Step Scratchers</h2><p class="sub" style="margin-top:12px">This file preview cannot run the game. Open the published website in Chrome to play.</p></div></div>
+<script>
+(()=>{
+'use strict';
+const KEY='step-scratchers-prototype-v1';
+const RATE=547, COINS_PER_RATE=10, TICKET_COST=30, ROUND_COST=10, PACK_COST=50;
+const TYPES={bingo:{label:'Bingo',icon:'🔢'},crossword:{label:'Crossword',icon:'🔤'},match:{label:'Match',icon:'✨'}};
+const PROJECTS=[
+ {title:'The Curiosity Cabinet',kind:'Card Album',icon:'🃏',items:[['🔑','Golden Key'],['🦋','Moon Moth'],['🧭','Compass'],['🔮','Crystal Ball'],['⏳','Hourglass'],['🪞','Magic Mirror'],['💎','Sapphire'],['👑','Tiny Crown'],['🗝️','Silver Key'],['📜','Lost Letter'],['🕯️','Old Candle'],['🪙','Lucky Coin']]},
+ {title:'The Enchanted Garden',kind:'Sticker Book',icon:'🌿',items:[['🌸','Pink Bloom'],['🍄','Little Toadstool'],['🐝','Bumblebee'],['🌻','Sunflower'],['🪻','Lavender'],['🌺','Hibiscus'],['🌱','Seedling'],['🍀','Four-Leaf Clover'],['🌷','Tulip'],['🌿','Fern'],['🦗','Cricket'],['🪷','Water Lily']]},
+ {title:'The Mini Museum',kind:'Exhibit Cases',icon:'🏛️',items:[['🐚','Sea Shell'],['🦴','Fossil'],['🪨','Meteorite'],['🦕','Dinosaur'],['💠','Opal'],['🗿','Ancient Idol'],['🏺','Clay Vase'],['🪶','Ancient Quill'],['⚱️','Golden Urn'],['🛡️','Old Shield'],['📿','Antique Beads'],['🧱','Rune Tablet']]},
+ {title:'The Medal Vault',kind:'Medal Display',icon:'🏅',items:[['🥉','Bronze Star'],['🥈','Silver Dawn'],['🥇','Golden Sun'],['🎖️','Explorer'],['🏵️','Bloom'],['🌙','Moonlight'],['⭐','Bright Star'],['⚜️','Flourish'],['💫','Comet'],['☀️','Daybreak'],['🏆','Champion'],['🎗️','Ribbon']]},
+ {title:'The Postcard Gallery',kind:'Postcard Book',icon:'🗺️',items:[['🏔️','Mountains'],['🏖️','Seaside'],['🌉','Bridge'],['🌆','Cityscape'],['🏜️','Desert'],['🌲','Forest'],['🗽','Landmark'],['🚂','Train'],['⛵','Sailboat'],['🌋','Volcano'],['🏰','Castle'],['🌌','Night Sky']]},
+ {title:'The Patch Collection',kind:'Patch Board',icon:'🧵',items:[['🚀','Rocket'],['🪐','Planet'],['🧋','Bubble Tea'],['🎸','Guitar'],['🎈','Balloon'],['🎨','Paintbrush'],['🎧','Headphones'],['🛼','Skates'],['🎯','Target'],['🪁','Kite'],['🧲','Magnet'],['🪩','Disco Ball']]}
+];
+const WIN_VALUES=[0,10,25,60,120];
+const WORDS=['TREASURE','SPARK','LUCK','BONUS','COIN','GOLD','CARD','STAR','KEY','GEM','CROWN','PEARL','WALK','PRIZE','WIN','TICKET'];
+const SYMBOLS=['🍒','⭐','💎','🍀','🔔','🪙','🌈','7️⃣','🍋','🍎','🍇','🍉','☀️','🎯'];
+let view='scratch', selected='bingo', notice='', scratchReady=false;
+let S=load();
+function initial(){return {version:1,bank:6000,coins:0,freeRounds:0,freeTickets:0,ticket:null,projectIndex:0,owned:[],duplicates:0,packs:0,packResults:null,completed:[],stats:{tickets:0,rounds:0,walkCoins:0,winCoins:0,projects:0},history:[]}}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1&&Number.isFinite(x.bank)&&Number.isFinite(x.coins))return x}catch(e){} return initial()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function rand(n){return Math.floor(Math.random()*n)}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=rand(i+1);[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function esc(s){return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function project(){return PROJECTS[S.projectIndex%PROJECTS.length]}
+function projectTitle(){const n=Math.floor(S.projectIndex/PROJECTS.length)+1;return project().title+(n>1?` · Volume ${n}`:'')}
+function makeBingo(){const nums=[];for(let c=0;c<5;c++){const block=shuffle(Array.from({length:15},(_,i)=>i+c*15+1)).slice(0,5);for(let r=0;r<5;r++)nums[r*5+c]=block[r]};nums[12]=null;return {cells:nums,source:shuffle(Array.from({length:75},(_,i)=>i+1))}}
+function makeCrossword(){
+ const grid=Array.from({length:11},()=>Array(11).fill(''));
+ const entries=[];
+ const base='TREASURE',r=5,c=1;
+ for(let i=0;i<base.length;i++)grid[r][c+i]=base[i]; entries.push({word:base,r,c,dir:'across'});
+ for(const word of shuffle(WORDS.filter(w=>w!==base)).slice(0,13)){
+  const possibilities=[];
+  for(let k=0;k<word.length;k++)for(let rr=0;rr<11;rr++)for(let cc=0;cc<11;cc++){
+   if(grid[rr][cc]!==word[k])continue;
+   for(const dir of ['down','across']){
+    const dr=dir==='down'?1:0,dc=dir==='across'?1:0, sr=rr-k*dr,sc=cc-k*dc;
+    if(sr<0||sc<0||sr+(word.length-1)*dr>10||sc+(word.length-1)*dc>10)continue;
+    if(sr-dr>=0&&sc-dc>=0&&grid[sr-dr][sc-dc])continue;
+    const er=sr+word.length*dr,ec=sc+word.length*dc;
+    if(er<11&&ec<11&&grid[er][ec])continue;
+    let crosses=0,valid=true;
+    for(let i=0;i<word.length;i++){
+      const y=sr+i*dr,x=sc+i*dc;
+      if(grid[y][x]&&grid[y][x]!==word[i]){valid=false;break}
+      if(grid[y][x]){crosses++;continue}
+      for(const [ny,nx] of dir==='down'?[[y,x-1],[y,x+1]]:[[y-1,x],[y+1,x]])if(ny>=0&&ny<11&&nx>=0&&nx<11&&grid[ny][nx])valid=false;
+      if(!valid)break;
+    }
+    if(valid&&crosses===1)possibilities.push({r:sr,c:sc,dir});
+   }
+  }
+  if(!possibilities.length)continue;
+  const p=possibilities[rand(possibilities.length)],dr=p.dir==='down'?1:0,dc=p.dir==='across'?1:0;
+  for(let i=0;i<word.length;i++)grid[p.r+i*dr][p.c+i*dc]=word[i];
+  entries.push({word,r:p.r,c:p.c,dir:p.dir});
+  if(entries.length===8)break;
+ }
+ const alphabet=shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
+ return {grid,words:entries,source:alphabet};
+}
+function makeMatch(){return {source:Array.from({length:15},()=>SYMBOLS[rand(SYMBOLS.length)])}}
+function makeTicket(type){return {id:Date.now(),type,round:0,pending:null,revealed:[],data:type==='bingo'?makeBingo():type==='crossword'?makeCrossword():makeMatch(),finished:false,prize:0,bonus:[],freeRoundsSpent:0}}
+function bingoLines(t){const seen=new Set(t.revealed);const cells=t.data.cells;const hit=i=>i===12||seen.has(cells[i]);const lines=[];for(let r=0;r<5;r++)lines.push([0,1,2,3,4].map(c=>r*5+c));for(let c=0;c<5;c++)lines.push([0,1,2,3,4].map(r=>r*5+c));lines.push([0,6,12,18,24],[4,8,12,16,20]);return lines.filter(line=>line.every(hit)).length}
+function crosswordWords(t){return t.data.words.filter(w=>[...w.word].every(l=>t.revealed.includes(l))).length}
+function matchSets(t){const m={};t.revealed.forEach(v=>m[v]=(m[v]||0)+1);return Object.values(m).reduce((a,b)=>a+Math.floor(b/3),0)}
+function ticketScore(t){return t.type==='bingo'?bingoLines(t):t.type==='crossword'?crosswordWords(t):matchSets(t)}
+function getPrize(t){const s=ticketScore(t);if(t.type==='bingo')return s>=4?120:s===3?60:s===2?25:s===1?10:0;if(t.type==='crossword')return s>=7?120:s>=5?60:s>=3?25:s>=1?10:0;return s>=4?120:s===3?60:s===2?25:s===1?10:0}
+function setNotice(m){notice=m;render()}
+function handle(action,arg){
+ if(action==='tab'){view=arg;notice='';return render()}
+ if(action==='pick'){selected=arg;return render()}
+ if(action==='addSteps'){S.bank+=Number(arg);return setNotice(`Added ${Number(arg).toLocaleString()} simulated steps.`)}
+ if(action==='exchange'||action==='exchangeAll'){
+  const count=action==='exchange'?1:Math.floor(S.bank/RATE);
+  if(count<1)return;
+  S.bank-=count*RATE;S.coins+=count*COINS_PER_RATE;S.stats.walkCoins+=count*COINS_PER_RATE;
+  save();return setNotice(`Exchanged ${count*RATE} simulated steps for ${count*COINS_PER_RATE} coins.`);
+ }
+ if(action==='buyTicket'){
+  if(S.ticket&&!S.ticket.finished)return setNotice('Finish your current ticket before starting a new one.');
+  if(S.freeTickets>0)S.freeTickets--;
+  else if(S.coins>=TICKET_COST)S.coins-=TICKET_COST;
+  else return setNotice('Not enough coins. Cash in some steps first.');
+  S.ticket=makeTicket(selected);S.stats.tickets++;save();return setNotice(`New ${TYPES[selected].label} scratcher! Five rounds to complete.`);
+ }
+ if(action==='buyRound'){
+  if(!S.ticket||S.ticket.finished||S.ticket.pending||S.ticket.round>=5)return;
+  if(S.freeRounds>0){S.freeRounds--;S.ticket.freeRoundsSpent++}
+  else if(S.coins>=ROUND_COST)S.coins-=ROUND_COST;
+  else return setNotice('You need 10 coins for the next scratch round.');
+  const t=S.ticket,start=t.round*(t.type==='bingo'?9:t.type==='crossword'?4:3),size=t.type==='bingo'?9:t.type==='crossword'?4:3;
+  t.pending=t.data.source.slice(start,start+size);scratchReady=true;save();return render();
+ }
+ if(action==='finishScratch'){
+  const t=S.ticket;if(!t||!t.pending)return;
+  t.revealed.push(...t.pending);t.pending=null;t.round++;S.stats.rounds++;
+  let messages=[];
+  if(Math.random()<.085){S.freeRounds++;messages.push('🎟️ BONUS: +1 free scratch round!')}
+  if(Math.random()<.07){S.coins+=5;S.stats.winCoins+=5;messages.push('🪙 BONUS: +5 coins!')}
+  if(Math.random()<.045){S.packs++;messages.push('🎁 BONUS: +1 mystery pack!')}
+  if(t.round>=5){
+    t.finished=true;t.prize=getPrize(t);S.coins+=t.prize;S.stats.winCoins+=t.prize;
+    if(Math.random()<.12){S.packs++;t.bonus.push('Mystery pack')}
+    if(Math.random()<.025){S.freeTickets++;t.bonus.push('Free ticket')}
+    S.history.unshift({type:t.type,prize:t.prize,when:new Date().toISOString()});S.history=S.history.slice(0,20);
+    messages.push(t.prize?`🎉 Ticket complete! You won ${t.prize} virtual coins.`:'Ticket complete! No coin win this time.');
+  } else messages.push(`Round ${t.round} completed. ${ticketProgress(t)}`);
+  notice=messages.join('  ');save();return render();
+ }
+ if(action==='buyPack'){
+  if(S.coins<PACK_COST)return setNotice('You need 50 coins for a mystery pack.');
+  if(S.owned.length===12)return setNotice('Finish this collection and begin the next before buying packs.');
+  S.coins-=PACK_COST;S.packs++;save();return setNotice('Mystery pack purchased! Open it whenever you like.');
+ }
+ if(action==='tradeDup'){
+  if(S.duplicates<3)return;
+  if(S.owned.length===12)return setNotice('Start the next collection before trading duplicates.');
+  S.duplicates-=3;S.packs++;save();return setNotice('Three duplicates exchanged for one sealed mystery pack.');
+ }
+ if(action==='openPack'){
+  if(S.packs<1)return;
+  if(S.owned.length===12)return setNotice('Start your next collection before opening a pack.');
+  S.packs--;const p=project();const results=[];
+  for(let k=0;k<2;k++){
+    const weights=p.items.map((_,i)=>i<7?9:i<10?5:2);
+    let roll=Math.random()*weights.reduce((a,b)=>a+b,0),picked=0;
+    for(let i=0;i<weights.length;i++){roll-=weights[i];if(roll<0){picked=i;break}}
+    const duplicate=S.owned.includes(picked);
+    if(duplicate)S.duplicates++;else S.owned.push(picked);
+    results.push({name:p.items[picked][1],emoji:p.items[picked][0],duplicate,rarity:picked<7?'Common':picked<10?'Uncommon':'Rare'});
+  }
+  S.packResults=results;save();return render();
+ }
+ if(action==='clearResults'){S.packResults=null;save();return render()}
+ if(action==='nextProject'){
+  if(S.owned.length!==12)return;
+  S.completed.push({index:S.projectIndex,name:projectTitle()});S.projectIndex++;S.owned=[];S.duplicates=0;S.packResults=null;S.stats.projects++;save();return setNotice('New project started! Your completed collection is saved in the gallery.');
+ }
+ if(action==='export'){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='step-scratchers-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);return;
+ }
+ if(action==='reset'){
+  if(!confirm('Erase this prototype progress and start over with 6,000 simulated steps?'))return;
+  S=initial();notice='Prototype reset.';selected='bingo';view='scratch';save();return render();
+ }
+}
+function ticketProgress(t){const s=ticketScore(t);return t.type==='bingo'?`${s} completed bingo lines.`:t.type==='crossword'?`${s} completed words.`:`${s} matching triples.`}
+function boardHtml(t){
+ if(t.type==='bingo'){
+  const seen=new Set(t.revealed);return `<div class="board-bingo">${'BINGO'.split('').map(x=>`<div class="bingo-head">${x}</div>`).join('')}${t.data.cells.map((n,i)=>`<div class="bingo-cell ${i===12?'free':seen.has(n)?'hit':''}">${i===12?'FREE':n}</div>`).join('')}</div>`;
+ }
+ if(t.type==='crossword'){
+  const finished=new Set();for(const w of t.data.words)if([...w.word].every(l=>t.revealed.includes(l))){for(let i=0;i<w.word.length;i++){finished.add(`${w.r+(w.dir==='down'?i:0)},${w.c+(w.dir==='across'?i:0)}`)}}
+  return `<div class="crossword-board">${t.data.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';let found=t.revealed.includes(l);return `<div class="crosscell ${!found?'hidden':finished.has(`${r},${c}`)?'found':''}">${found?l:'·'}</div>`}).join('')).join('')}</div>`;
+ }
+ return `<div class="match-board">${t.data.source.map((s,i)=>`<div class="symbol ${i>=t.revealed.length?'hidden':i>=t.revealed.length-3?'new':''}">${i<t.revealed.length?s:'?'}</div>`).join('')}</div>`;
+}
+function ticketHtml(){
+ const t=S.ticket;
+ if(!t||t.finished){
+  const footer=t&&t.finished?`<div class="card"><div class="finish"><div class="em">${t.prize?'🎉':'🎫'}</div><h2>${t.prize?'Winning ticket!':'Ticket complete!'}</h2><p class="sub">${TYPES[t.type].label} · ${ticketProgress(t)}</p><div class="big-amount">+${t.prize} coins</div><p class="sub">${t.bonus.length?'Extra: '+t.bonus.join(', '):'One finished ticket added to your history.'}</p></div></div>`:'';
+  return `${footer}<div class="card"><div class="sectionline"><div><div class="kicker">Ticket counter</div><h2>Choose your next scratcher</h2></div><span class="pill">30 coins</span></div><div class="select-grid">${Object.entries(TYPES).map(([key,x])=>`<button class="select-game ${selected===key?'selected':''}" data-act="pick" data-arg="${key}"><span class="em">${x.icon}</span><strong>${x.label}</strong><small>5 rounds</small></button>`).join('')}</div><div class="callout" style="margin:14px 0">One active ticket at a time. Every ticket has five scratch rounds. Your completed tickets and collections stay in your history.</div><button class="btn wide" data-act="buyTicket" ${S.coins<TICKET_COST&&S.freeTickets===0?'disabled':''}>${S.freeTickets>0?'Use free ticket':'Buy ticket · 30 coins'}</button><p class="note" style="margin-top:11px">Each scratch round costs 10 coins, unless you've earned a free round.</p></div>`;
+ }
+ let header=`<div class="card"><div class="sectionline"><div><div class="kicker">Active scratcher</div><h2>${TYPES[t.type].icon} ${TYPES[t.type].label} Ticket</h2></div><span class="pill">${t.round} / 5</span></div><div class="progress"><div style="width:${t.round*20}%"></div></div><div class="ticket-top"><strong>Find your winning combinations</strong><span>${t.type==='bingo'?'Completed lines win coins':t.type==='crossword'?'Completed words win coins automatically':'Three matching symbols make a set'}</span></div>${boardHtml(t)}<div class="kpi-row"><div class="kpi"><strong>${t.round}</strong><small>Rounds played</small></div><div class="kpi"><strong>${ticketScore(t)}</strong><small>${t.type==='bingo'?'Bingo lines':t.type==='crossword'?'Whole words':'Matching sets'}</small></div><div class="kpi"><strong>${5-t.round}</strong><small>Rounds left</small></div></div>`;
+ if(t.pending){header+=`<div class="label" style="text-align:center;margin-top:14px">Scratch to uncover round ${t.round+1}</div><div class="scratch-tray"><div class="scratch-items">${t.pending.map(x=>`<div class="scratch-item ${t.type==='match'?'symbol-item':''}">${esc(x)}</div>`).join('')}</div><canvas id="foil" aria-label="Scratch foil to reveal items"></canvas></div><button class="btn ghost wide" data-act="finishScratch">Reveal without scratching</button><p class="note" style="text-align:center;margin-top:8px">Rub the silver foil with your finger, or use the reveal button.</p>`}
+ else header+=`<div class="callout good">${esc(ticketProgress(t))} Finish all five rounds to settle your ticket prize.</div><button class="btn wide" style="margin-top:13px" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free scratch round':'Scratch next round · 10 coins'}</button><p class="note" style="text-align:center;margin-top:9px">${S.freeRounds} free scratch rounds saved for later</p>`;
+ return header+'</div>';
+}
+function collectHtml(){const p=project();const complete=S.owned.length===p.items.length;
+ let html=`<div class="card"><div class="sectionline"><div><div class="kicker">Current project · ${S.projectIndex+1}</div><h2>${p.icon} ${esc(projectTitle())}</h2></div><span class="pill">${S.owned.length} / 12</span></div><p class="sub">${esc(p.kind)} · Fill every slot to finish the project and unlock a completely different collection type.</p><div class="progress"><div style="width:${S.owned.length/12*100}%"></div></div><div class="collect-grid">${p.items.map(([emoji,name],i)=>`<div class="collect-item ${!S.owned.includes(i)?'unknown':''}"><div class="art">${S.owned.includes(i)?emoji:'❔'}</div><small>${S.owned.includes(i)?esc(name):'Undiscovered'}</small></div>`).join('')}</div>`;
+ if(complete)html+=`<div class="callout good" style="margin-bottom:10px">🎊 All 12 discoveries found! This collection is finished.</div><button class="btn wide" data-act="nextProject">Complete project → Start a new kind</button>`;
+ else html+=`<div class="callout">Cards are discovered at random. Packs can contain new items or duplicates. Every project can be completed without paying real money.</div>`;
+ html+='</div>';
+ html+=`<div class="card"><div class="sectionline"><div><div class="kicker">Mystery pack vault</div><h2>📦 ${S.packs} sealed pack${S.packs===1?'':'s'}</h2></div><span class="pill">2 items / pack</span></div><p class="sub" style="margin-bottom:14px">Open packs whenever you want. Each one reveals two random items from your current collection.</p><button class="btn wide" data-act="openPack" ${S.packs===0||complete?'disabled':''}>Open a mystery pack</button>`;
+ if(S.packResults)html+=`<div class="pack-results">${S.packResults.map(v=>`<div class="pack-result"><div class="art">${v.emoji}</div><strong>${esc(v.name)}</strong><small>${v.duplicate?'Duplicate ♻️':'NEW! ✨'} · ${v.rarity}</small></div>`).join('')}</div><button class="btn ghost wide" data-act="clearResults">Close pack results</button>`;
+ html+=`<div class="rule"></div><div class="row"><div><h3>Duplicate exchange</h3><p class="sub">${S.duplicates} duplicate item${S.duplicates===1?'':'s'} · trade 3 for a pack</p></div><button class="btn tiny alt" data-act="tradeDup" ${S.duplicates<3||complete?'disabled':''}>Trade 3 ♻️</button></div><div class="rule"></div><div class="row"><div><h3>Buy a mystery pack</h3><p class="sub">50 virtual coins</p></div><button class="btn tiny alt" data-act="buyPack" ${S.coins<PACK_COST||complete?'disabled':''}>Buy pack</button></div></div>`;
+ html+=`<div class="card soft"><h3>Completed collection gallery</h3>${S.completed.length?`<p class="sub" style="margin-top:9px">${S.completed.map(c=>'✓ '+esc(c.name)).join(' · ')}</p>`:'<p class="sub" style="margin-top:9px">Your finished projects will be displayed here forever.</p>'}</div>`;
+ return html;
+}
+function walletHtml(){return `<div class="card"><div class="sectionline"><div><div class="kicker">Test the economy</div><h2>Walk → coins → scratch</h2></div></div><div class="callout gold">⚠️ This preview uses simulated steps. It does not read Apple Health or your Apple Watch yet. The eventual Shortcut connection will come after gameplay testing.</div><div class="kpi-row"><div class="kpi"><strong>${Math.floor(S.bank/RATE)}</strong><small>Exchange units</small></div><div class="kpi"><strong>${S.freeRounds}</strong><small>Free rounds</small></div><div class="kpi"><strong>${S.freeTickets}</strong><small>Free tickets</small></div></div><p class="label">Add pretend walking</p><div class="row" style="margin:10px 0 18px;justify-content:stretch"><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="547">+547 steps</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="1000">+1,000</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="6000">+6,000</button></div><div class="row" style="gap:8px"><button class="btn" style="flex:1" data-act="exchange" ${S.bank<RATE?'disabled':''}>Cash 547 → 10 coins</button><button class="btn alt" style="flex:1" data-act="exchangeAll" ${S.bank<RATE?'disabled':''}>Cash all available</button></div><p class="note" style="margin-top:10px">Every leftover step stays in your bank, including across days. Coins don't expire. Redeemed steps aren't reusable.</p></div><div class="card"><h3>Your game statistics</h3><div class="kpi-row"><div class="kpi"><strong>${S.stats.tickets}</strong><small>Tickets bought</small></div><div class="kpi"><strong>${S.stats.rounds}</strong><small>Rounds scratched</small></div><div class="kpi"><strong>${S.stats.projects}</strong><small>Projects finished</small></div></div><div class="row"><span class="sub">Coins from walking</span><strong>${S.stats.walkCoins}</strong></div><div class="rule"></div><div class="row"><span class="sub">Coins won in scratchers</span><strong>${S.stats.winCoins}</strong></div></div><div class="card soft"><div class="row"><div><h3>Save or reset</h3><p class="sub">Progress is saved in this browser. Export a backup before clearing site data.</p></div></div><div class="row" style="margin-top:12px"><button class="btn tiny alt" data-act="export">Export save file</button><button class="btn tiny ghost" data-act="reset">Reset prototype</button></div></div>`}
+function render(){const root=document.getElementById('app');root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered arcade</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">PLAYABLE DEMO</div></div><div class="wallet"><div class="stat"><small>👟 Step bank</small><strong>${S.bank.toLocaleString()}</strong><em>steps</em></div><div class="stat"><small>🪙 Virtual wallet</small><strong>${S.coins.toLocaleString()}</strong><em>coins</em></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Prototype · No ads · No money · No GPS · All rewards fictional<br>One active ticket · Endless tickets & rotating collections</div>`;
+  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
+  if(S.ticket?.pending)setupScratch();
+}
+function setupScratch(){
+ const canvas=document.getElementById('foil');if(!canvas)return;const rect=canvas.getBoundingClientRect();if(rect.width<10)return;
+ const w=rect.width,h=rect.height,dpr=window.devicePixelRatio||1;
+ canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const ctx=canvas.getContext('2d',{willReadFrequently:false});ctx.scale(dpr,dpr);
+ ctx.fillStyle='#c7cbcb';ctx.fillRect(0,0,w,h);
+ ctx.fillStyle='#3f4456';ctx.font='900 21px ui-rounded, system-ui';ctx.textAlign='center';ctx.fillText('SCRATCH ME',w/2,h/2-3);ctx.font='600 12px ui-rounded, system-ui';ctx.fillText('rub with your finger to reveal',w/2,h/2+21);
+ let down=false,prev=null,total=0,done=false;
+ function point(e){const b=canvas.getBoundingClientRect();return{x:e.clientX-b.left,y:e.clientY-b.top}}
+ function stroke(a,b){ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=42;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.beginPath();ctx.arc(b.x,b.y,21,0,2*Math.PI);ctx.fill();ctx.globalCompositeOperation='source-over'}
+ canvas.addEventListener('pointerdown',e=>{down=true;prev=point(e);canvas.setPointerCapture(e.pointerId);stroke(prev,prev);e.preventDefault()});
+ canvas.addEventListener('pointermove',e=>{if(!down||done)return;const p=point(e);stroke(prev,p);total+=Math.hypot(p.x-prev.x,p.y-prev.y);prev=p;if(total>Math.max(w*1.4,300)){done=true;down=false;handle('finishScratch')}e.preventDefault()});
+ canvas.addEventListener('pointerup',()=>{down=false;prev=null});canvas.addEventListener('pointercancel',()=>{down=false;prev=null});
+}
+render();
+})();
+</script></body></html>
