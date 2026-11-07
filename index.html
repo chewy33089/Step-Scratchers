@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#171724">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Step Scratchers — Playable Prototype</title>
-<meta name="description" content="A quiet, ad-free walking-powered scratcher game prototype.">
+<title>Step Scratchers — Bingo & Crossword</title>
+<meta name="description" content="A quiet, ad-free walking-powered bingo and crossword scratcher game.">
 <style>
 :root { color-scheme: dark; --bg:#12131d; --surface:#222437; --surface2:#2c2d45; --edge:#43445d; --ink:#f8f7ff; --muted:#b2b4c9; --gold:#ffd580; --pink:#ff92bd; --teal:#8ff3da; --purple:#a8a3ff; --success:#93edab; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -144,6 +144,58 @@ body {background:var(--bg)!important;}
 .pack-result {background:#303a42;border-color:#607078;}
 .notice {background:#39362e;border-color:#756a56;color:#f6e9cc;}
 
+
+/* Version 2: mobile-friendly scratcher cards */
+:root { --accent:#ddc79d; }
+#app {max-width:650px;}
+.select-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.select-game {min-height:119px;}
+.bingo-six {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:14px 0;}
+.mini-bingo {border:1px solid #5e696d;border-radius:12px;padding:7px;background:#283238;min-width:0;}
+.mini-bingo-header {display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:7px;}
+.mini-bingo-header strong {font-size:12px;}
+.mini-bingo-header small {font-size:10px;color:var(--muted);}
+.mini-bingo-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;}
+.mini-bingo-cell {aspect-ratio:1; min-width:0;display:flex;align-items:center;justify-content:center;background:#3c464c;border:1px solid #68757a;border-radius:3px;font-size:clamp(10px,2.6vw,14px);font-weight:800;position:relative;}
+.mini-bingo-cell.hit {background:#4b766d;color:#f0fff7;border-color:#9acaba;}
+.mini-bingo-cell.hit:after {content:'•'; position:absolute; color:#e4f8f0; right:1px; bottom:-3px; font-size:14px;}
+.mini-bingo-cell.free {background:#76674b;color:#fff4d4;border-color:#c0ad85;font-size:8px;}
+.mini-bingo-letter {font-size:9px;color:#d7dfdf;text-align:center;font-weight:900;margin-bottom:2px;}
+.mini-bingo-bonus {font-size:10px;color:#d4e3dc;text-align:center;margin-top:6px;}
+.calls-card {background:#2a363b;border:1px solid #627078;border-radius:12px;padding:11px;margin:12px 0;}
+.calls-grid {display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;margin:9px 0 5px;}
+.called-number {height:34px;display:flex;align-items:center;justify-content:center;border:1px dashed #697780;border-radius:8px;background:#323d43;color:#667780;font-size:12px;font-weight:850;}
+.called-number.revealed {border:1px solid #acb6b0;color:#f6f9f5;background:#52675e;}
+.called-number.recent {background:#7a6650;color:#fff0ce;border-color:#d9bd89;}
+.calls-grid.bonus {grid-template-columns:repeat(5,minmax(0,1fr));}
+.called-number.bonus {border-color:#7e755f;}
+.rule-small {font-size:11px;color:var(--muted);line-height:1.5;}
+.prize-strip {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:11px 0;}
+.prize-chip {background:#303940;border:1px solid #637077;border-radius:9px;padding:8px 4px;text-align:center;}
+.prize-chip strong {display:block;font-size:13px;color:#e1ceaa;}
+.prize-chip small {display:block;font-size:9px;color:#c3cecf;margin-top:4px;}
+.crossword-sheet {display:grid;grid-template-columns:1fr;gap:10px;margin-top:13px;}
+.crossword-paper {padding:9px;border:1px solid #617274;border-radius:11px;background:#29363a;min-width:0;}
+.crossword-paper .row {margin-bottom:5px;}
+.crossword-paper .row strong {font-size:13px;}
+.crossword-board {display:grid;gap:1px;margin:8px auto 0;width:min(100%,420px);}
+.crosscell {border-radius:1px;background:#3d4748;border:1px solid #677677;color:#dfe6e1;font-size:clamp(9px,2.5vw,16px);}
+.crosscell.blank {background:transparent;border:0;}
+.crosscell.called {color:#f9fffb;background:#587169;}
+.crosscell.found {background:#ab9972;color:#17201b;border-color:#f3dfb4;}
+.letter-bank {display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;margin:8px 0 10px;}
+.letter-cell {height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:#333d43;border:1px dashed #647178;color:#7e8d8e;font-weight:900;}
+.letter-cell.called {background:#b6b3a0;color:#202a2c;border-style:solid;border-color:#ece1c3;}
+.bonus-word {margin:12px 0;padding:11px;border:1px solid #716a53;border-radius:10px;background:#35382e;display:flex;justify-content:space-between;gap:7px;align-items:center;}
+.bonus-word strong {letter-spacing:2px;font-size:15px;}
+.bonus-word.done {background:#4e624e;}
+.scratch-tray {border-color:#9a9f9b;background:#27373b;}
+.scratch-tray.revealed {border-style:solid;}
+.scratch-note {font-size:11px;text-align:center;color:var(--muted);margin-top:6px;}
+.scratch-items {min-height:124px;}
+.scratch-item {min-width:36px;min-height:36px;}
+@media(max-width:370px){.mini-bingo {padding:5px;}.mini-bingo-cell {font-size:10px;}.calls-grid {gap:2px;}.called-number {height:31px;}.letter-cell {height:30px;}.prize-strip {gap:4px;}}
+@media(prefers-reduced-motion: reduce){*,*:before,*:after{animation:none!important;transition:none!important;}}
 </style>
 </head>
 <body><div id="app"><div class="card"><h2>Step Scratchers</h2><p class="sub" style="margin-top:12px">This file preview cannot run the game. Open the published website in Chrome to play.</p></div></div>
@@ -152,7 +204,7 @@ body {background:var(--bg)!important;}
 'use strict';
 const KEY='step-scratchers-prototype-v1';
 const RATE=547, COINS_PER_RATE=10, TICKET_COST=30, ROUND_COST=10, PACK_COST=50;
-const TYPES={bingo:{label:'Bingo',icon:'🔢'},crossword:{label:'Crossword',icon:'🔤'},match:{label:'Match',icon:'✨'}};
+const TYPES={bingo:{label:'Bingo',icon:'🔢'},crossword:{label:'Crossword',icon:'🔠'}};
 const PROJECTS=[
  {title:'The Curiosity Cabinet',kind:'Card Album',icon:'🃏',items:[['🔑','Golden Key'],['🦋','Moon Moth'],['🧭','Compass'],['🔮','Crystal Ball'],['⏳','Hourglass'],['🪞','Magic Mirror'],['💎','Sapphire'],['👑','Tiny Crown'],['🗝️','Silver Key'],['📜','Lost Letter'],['🕯️','Old Candle'],['🪙','Lucky Coin']]},
  {title:'The Enchanted Garden',kind:'Sticker Book',icon:'🌿',items:[['🌸','Pink Bloom'],['🍄','Little Toadstool'],['🐝','Bumblebee'],['🌻','Sunflower'],['🪻','Lavender'],['🌺','Hibiscus'],['🌱','Seedling'],['🍀','Four-Leaf Clover'],['🌷','Tulip'],['🌿','Fern'],['🦗','Cricket'],['🪷','Water Lily']]},
@@ -161,193 +213,186 @@ const PROJECTS=[
  {title:'The Postcard Gallery',kind:'Postcard Book',icon:'🗺️',items:[['🏔️','Mountains'],['🏖️','Seaside'],['🌉','Bridge'],['🌆','Cityscape'],['🏜️','Desert'],['🌲','Forest'],['🗽','Landmark'],['🚂','Train'],['⛵','Sailboat'],['🌋','Volcano'],['🏰','Castle'],['🌌','Night Sky']]},
  {title:'The Patch Collection',kind:'Patch Board',icon:'🧵',items:[['🚀','Rocket'],['🪐','Planet'],['🧋','Bubble Tea'],['🎸','Guitar'],['🎈','Balloon'],['🎨','Paintbrush'],['🎧','Headphones'],['🛼','Skates'],['🎯','Target'],['🪁','Kite'],['🧲','Magnet'],['🪩','Disco Ball']]}
 ];
-const WIN_VALUES=[0,10,25,60,120];
-const WORDS=['TREASURE','SPARK','LUCK','BONUS','COIN','GOLD','CARD','STAR','KEY','GEM','CROWN','PEARL','WALK','PRIZE','WIN','TICKET'];
-const SYMBOLS=['🍒','⭐','💎','🍀','🔔','🪙','🌈','7️⃣','🍋','🍎','🍇','🍉','☀️','🎯'];
-let view='scratch', selected='bingo', notice='', scratchReady=false;
-let S=load();
+const WORDS=['TREASURE','SPARK','LUCK','BONUS','COIN','GOLD','CARD','STAR','KEY','GEM','CROWN','PEARL','WALK','PRIZE','WIN','TICKET','GARDEN','SECRET','LUCKY','MYSTERY','DAWN','OCEAN','CLOUD','LIGHT','FLOWER','SHINE','DREAM','SMILE','SILVER','BRIGHT','RIBBON','HEART','GIFT','PEACE','STONE','SHELL','APE','SEA','RUN','HAT','TREE','NOTE','RING','TALL','WEAR','DICE','BIRD','TIDE','OIL','ICE','SAND','JAM','MAP','TEN','CAT','BLUE','FIVE','TWO','NEW','OWL','MOON','RAIN','TOY','BELL','FAN','GLOW','NEST','HOME','RIVER','ROSE','WIND','ECHO','NICE','FIRE','TINY','GLOW','READ','LAMP'];
+let view='scratch',selected='bingo',notice='',S=load();
 function initial(){return {version:1,bank:6000,coins:0,freeRounds:0,freeTickets:0,ticket:null,projectIndex:0,owned:[],duplicates:0,packs:0,packResults:null,completed:[],stats:{tickets:0,rounds:0,walkCoins:0,winCoins:0,projects:0},history:[]}}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1&&Number.isFinite(x.bank)&&Number.isFinite(x.coins))return x}catch(e){} return initial()}
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1&&Number.isFinite(x.bank)&&Number.isFinite(x.coins))return x;}catch(e){}return initial()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function rand(n){return Math.floor(Math.random()*n)}
-function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=rand(i+1);[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
-function esc(s){return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function project(){return PROJECTS[S.projectIndex%PROJECTS.length]}
-function projectTitle(){const n=Math.floor(S.projectIndex/PROJECTS.length)+1;return project().title+(n>1?` · Volume ${n}`:'')}
-function makeBingo(){const nums=[];for(let c=0;c<5;c++){const block=shuffle(Array.from({length:15},(_,i)=>i+c*15+1)).slice(0,5);for(let r=0;r<5;r++)nums[r*5+c]=block[r]};nums[12]=null;return {cells:nums,source:shuffle(Array.from({length:75},(_,i)=>i+1))}}
-function makeCrossword(){
- const grid=Array.from({length:11},()=>Array(11).fill(''));
- const entries=[];
- const base='TREASURE',r=5,c=1;
- for(let i=0;i<base.length;i++)grid[r][c+i]=base[i]; entries.push({word:base,r,c,dir:'across'});
- for(const word of shuffle(WORDS.filter(w=>w!==base)).slice(0,13)){
-  const possibilities=[];
-  for(let k=0;k<word.length;k++)for(let rr=0;rr<11;rr++)for(let cc=0;cc<11;cc++){
+function projectTitle(){let n=Math.floor(S.projectIndex/PROJECTS.length)+1;return project().title+(n>1?` · Volume ${n}`:'')}
+function gridNumbers(){const nums=[];for(let c=0;c<5;c++){let block=shuffle(Array.from({length:15},(_,i)=>i+c*15+1)).slice(0,5);for(let r=0;r<5;r++)nums[r*5+c]=block[r]};nums[12]=null;return nums}
+function makeBingo(){return {cards:Array.from({length:6},gridNumbers),source:shuffle(Array.from({length:75},(_,i)=>i+1)).slice(0,29)}}
+function makeBoard(n, base, maxWords){
+ const grid=Array.from({length:n},()=>Array(n).fill(''));const entries=[];
+ const r=Math.floor(n/2),c=Math.floor((n-base.length)/2);
+ for(let i=0;i<base.length;i++)grid[r][c+i]=base[i];entries.push({word:base,r,c,dir:'across'});
+ for(let word of shuffle(WORDS.filter(w=>w!==base && w.length<n-1)).slice(0,32)){
+  const possible=[];
+  for(let k=0;k<word.length;k++)for(let rr=0;rr<n;rr++)for(let cc=0;cc<n;cc++){
    if(grid[rr][cc]!==word[k])continue;
-   for(const dir of ['down','across']){
-    const dr=dir==='down'?1:0,dc=dir==='across'?1:0, sr=rr-k*dr,sc=cc-k*dc;
-    if(sr<0||sc<0||sr+(word.length-1)*dr>10||sc+(word.length-1)*dc>10)continue;
+   for(let dir of ['down','across']){
+    const dr=dir==='down'?1:0,dc=dir==='across'?1:0,sr=rr-k*dr,sc=cc-k*dc;
+    if(sr<0||sc<0||sr+(word.length-1)*dr>=n||sc+(word.length-1)*dc>=n)continue;
     if(sr-dr>=0&&sc-dc>=0&&grid[sr-dr][sc-dc])continue;
     const er=sr+word.length*dr,ec=sc+word.length*dc;
-    if(er<11&&ec<11&&grid[er][ec])continue;
+    if(er<n&&ec<n&&grid[er][ec])continue;
     let crosses=0,valid=true;
     for(let i=0;i<word.length;i++){
-      const y=sr+i*dr,x=sc+i*dc;
-      if(grid[y][x]&&grid[y][x]!==word[i]){valid=false;break}
-      if(grid[y][x]){crosses++;continue}
-      for(const [ny,nx] of dir==='down'?[[y,x-1],[y,x+1]]:[[y-1,x],[y+1,x]])if(ny>=0&&ny<11&&nx>=0&&nx<11&&grid[ny][nx])valid=false;
-      if(!valid)break;
+     let y=sr+i*dr,x=sc+i*dc;
+     if(grid[y][x]&&grid[y][x]!==word[i]){valid=false;break}
+     if(grid[y][x]){crosses++;continue}
+     for(let [ny,nx] of (dir==='down'?[[y,x-1],[y,x+1]]:[[y-1,x],[y+1,x]]))if(ny>=0&&ny<n&&nx>=0&&nx<n&&grid[ny][nx])valid=false;
+     if(!valid)break;
     }
-    if(valid&&crosses===1)possibilities.push({r:sr,c:sc,dir});
+    if(valid&&crosses===1)possible.push({r:sr,c:sc,dir});
    }
   }
-  if(!possibilities.length)continue;
-  const p=possibilities[rand(possibilities.length)],dr=p.dir==='down'?1:0,dc=p.dir==='across'?1:0;
+  if(!possible.length)continue;
+  const p=possible[rand(possible.length)],dr=p.dir==='down'?1:0,dc=p.dir==='across'?1:0;
   for(let i=0;i<word.length;i++)grid[p.r+i*dr][p.c+i*dc]=word[i];
-  entries.push({word,r:p.r,c:p.c,dir:p.dir});
-  if(entries.length===8)break;
+  entries.push({word,r:p.r,c:p.c,dir:p.dir});if(entries.length>=maxWords)break;
  }
- const alphabet=shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
- return {grid,words:entries,source:alphabet};
+ return {grid,words:entries};
 }
-function makeMatch(){return {source:Array.from({length:15},()=>SYMBOLS[rand(SYMBOLS.length)])}}
-function makeTicket(type){return {id:Date.now(),type,round:0,pending:null,revealed:[],data:type==='bingo'?makeBingo():type==='crossword'?makeCrossword():makeMatch(),finished:false,prize:0,bonus:[],freeRoundsSpent:0}}
-function bingoLines(t){const seen=new Set(t.revealed);const cells=t.data.cells;const hit=i=>i===12||seen.has(cells[i]);const lines=[];for(let r=0;r<5;r++)lines.push([0,1,2,3,4].map(c=>r*5+c));for(let c=0;c<5;c++)lines.push([0,1,2,3,4].map(r=>r*5+c));lines.push([0,6,12,18,24],[4,8,12,16,20]);return lines.filter(line=>line.every(hit)).length}
-function crosswordWords(t){return t.data.words.filter(w=>[...w.word].every(l=>t.revealed.includes(l))).length}
-function matchSets(t){const m={};t.revealed.forEach(v=>m[v]=(m[v]||0)+1);return Object.values(m).reduce((a,b)=>a+Math.floor(b/3),0)}
-function ticketScore(t){return t.type==='bingo'?bingoLines(t):t.type==='crossword'?crosswordWords(t):matchSets(t)}
-function getPrize(t){const s=ticketScore(t);if(t.type==='bingo')return s>=4?120:s===3?60:s===2?25:s===1?10:0;if(t.type==='crossword')return s>=7?120:s>=5?60:s>=3?25:s>=1?10:0;return s>=4?120:s===3?60:s===2?25:s===1?10:0}
+function makeCrossword(){return {boards:[makeBoard(13,'TREASURE',11),makeBoard(9,'WALK',6)],bonusWord:['LUCKY','PRIZE','GOLD','SMILE','BONUS','HEART'][rand(6)],source:shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')).slice(0,20)}}
+function makeTicket(type){return {id:Date.now(),type,round:0,pending:null,lastReveal:null,revealed:[],data:type==='bingo'?makeBingo():makeCrossword(),finished:false,prize:0,bonus:[],freeRoundsSpent:0}}
+function bingoOutcomes(t){let counts={lines:0,corners:0,xs:0,prize:0};let seen=new Set(t.revealed);
+ t.data.cards.forEach((cells,ci)=>{
+  const hit=i=>i===12||seen.has(cells[i]);
+  const lineSets=[];for(let r=0;r<5;r++)lineSets.push([0,1,2,3,4].map(c=>r*5+c));for(let c=0;c<5;c++)lineSets.push([0,1,2,3,4].map(r=>r*5+c));
+  const lines=lineSets.filter(l=>l.every(hit)).length;
+  const corners=[0,4,20,24].every(hit)?1:0;
+  const x=[0,6,12,18,24,4,8,16,20].every(hit)?1:0;
+  counts.lines+=lines;counts.corners+=corners;counts.xs+=x;
+  counts.prize+=lines*(5+ci*3)+corners*25+x*60;
+ });counts.prize=Math.min(120,counts.prize);return counts;
+}
+function completedWords(board,seen){return board.words.filter(w=>[...w.word].every(l=>seen.has(l)))}
+function crossOutcomes(t){const seen=new Set(t.revealed),g1=completedWords(t.data.boards[0],seen).length,g2=completedWords(t.data.boards[1],seen).length;
+ const bonus=[...t.data.bonusWord].every(l=>seen.has(l));
+ const game1Prize=g1>=9?80:g1>=7?45:g1>=5?18:g1>=3?8:0;
+ const game2Prize=g2>=5?30:g2>=4?18:g2>=3?8:g2>=2?3:0;
+ return {g1,g2,total:g1+g2,bonus,game1Prize,game2Prize,prize:Math.min(120,game1Prize+game2Prize+(bonus?8:0))};
+}
+function getPrize(t){return t.type==='bingo'?bingoOutcomes(t).prize:crossOutcomes(t).prize}
+function ticketProgress(t){if(t.type==='bingo'){let o=bingoOutcomes(t);return `${o.lines} line${o.lines===1?'':'s'} · ${o.corners} four-corner bonus${o.corners===1?'':'es'}${o.xs?' · X bonus!':''}`;}let o=crossOutcomes(t);return `Game 1: ${o.g1} words · Game 2: ${o.g2} words${o.bonus?' · bonus word!':''}`}
+function migrate(){if(S.rulesVersion>=2)return;
+ if(S.ticket&&S.ticket.finished&&(!TYPES[S.ticket.type]||(S.ticket.type==='bingo'&&!S.ticket.data.cards)||(S.ticket.type==='crossword'&&!S.ticket.data.boards))){S.ticket=null;notice='Older finished ticket is preserved in your statistics. New two-game tickets are ready.';}
+ if(S.ticket&&!S.ticket.finished&&(!TYPES[S.ticket.type]|| (S.ticket.type==='bingo'&&!S.ticket.data.cards)||(S.ticket.type==='crossword'&&!S.ticket.data.boards))){
+  const t=S.ticket;S.coins+=TICKET_COST+ROUND_COST*(t.round+(t.pending?1:0));S.history.unshift({type:t.type,prize:0,when:new Date().toISOString(),retired:true});S.ticket=null;notice='Classic ticket converted to the new format. Its ticket and round costs were returned to your coin wallet. Your steps, coins and collection were kept.';
+ }
+ S.rulesVersion=2;save();
+}
+migrate();
 function setNotice(m){notice=m;render()}
 function handle(action,arg){
  if(action==='tab'){view=arg;notice='';return render()}
  if(action==='pick'){selected=arg;return render()}
- if(action==='addSteps'){S.bank+=Number(arg);return setNotice(`Added ${Number(arg).toLocaleString()} simulated steps.`)}
- if(action==='exchange'||action==='exchangeAll'){
-  const count=action==='exchange'?1:Math.floor(S.bank/RATE);
-  if(count<1)return;
-  S.bank-=count*RATE;S.coins+=count*COINS_PER_RATE;S.stats.walkCoins+=count*COINS_PER_RATE;
-  save();return setNotice(`Exchanged ${count*RATE} simulated steps for ${count*COINS_PER_RATE} coins.`);
- }
+ if(action==='addSteps'){S.bank+=Number(arg);save();return setNotice(`Added ${Number(arg).toLocaleString()} simulated steps.`)}
+ if(action==='exchange'||action==='exchangeAll'){const count=action==='exchange'?1:Math.floor(S.bank/RATE);if(count<1)return;S.bank-=count*RATE;S.coins+=count*COINS_PER_RATE;S.stats.walkCoins+=count*COINS_PER_RATE;save();return setNotice(`Exchanged ${count*RATE} simulated steps for ${count*COINS_PER_RATE} coins.`)}
  if(action==='buyTicket'){
-  if(S.ticket&&!S.ticket.finished)return setNotice('Finish your current ticket before starting a new one.');
-  if(S.freeTickets>0)S.freeTickets--;
-  else if(S.coins>=TICKET_COST)S.coins-=TICKET_COST;
-  else return setNotice('Not enough coins. Cash in some steps first.');
-  S.ticket=makeTicket(selected);S.stats.tickets++;save();return setNotice(`New ${TYPES[selected].label} scratcher! Five rounds to complete.`);
+  if(S.ticket&&!S.ticket.finished)return setNotice('Finish your current ticket first.');
+  if(S.freeTickets>0)S.freeTickets--;else if(S.coins>=TICKET_COST)S.coins-=TICKET_COST;else return setNotice('You need 30 coins for a ticket. Exchange some banked steps.');
+  S.ticket=makeTicket(selected);S.stats.tickets++;save();return setNotice(`${TYPES[selected].label} ticket ready! Five rounds to complete.`);
  }
  if(action==='buyRound'){
-  if(!S.ticket||S.ticket.finished||S.ticket.pending||S.ticket.round>=5)return;
-  if(S.freeRounds>0){S.freeRounds--;S.ticket.freeRoundsSpent++}
-  else if(S.coins>=ROUND_COST)S.coins-=ROUND_COST;
-  else return setNotice('You need 10 coins for the next scratch round.');
-  const t=S.ticket,start=t.round*(t.type==='bingo'?9:t.type==='crossword'?4:3),size=t.type==='bingo'?9:t.type==='crossword'?4:3;
-  t.pending=t.data.source.slice(start,start+size);scratchReady=true;save();return render();
+  const t=S.ticket;if(!t||t.finished||t.pending||t.round>=5)return;
+  if(S.freeRounds>0){S.freeRounds--;t.freeRoundsSpent++}else if(S.coins>=ROUND_COST)S.coins-=ROUND_COST;else return setNotice('You need 10 coins for your next round.');
+  if(t.type==='bingo'){const offsets=[0,6,12,18,24],sizes=[6,6,6,6,5];t.pending=t.data.source.slice(offsets[t.round],offsets[t.round]+sizes[t.round]);}
+  else t.pending=t.data.source.slice(t.round*4,t.round*4+4);
+  t.lastReveal=null;notice='';save();render();document.querySelector('.scratch-tray')?.scrollIntoView({block:'center',behavior:'instant'});return;
  }
  if(action==='finishScratch'){
   const t=S.ticket;if(!t||!t.pending)return;
-  t.revealed.push(...t.pending);t.pending=null;t.round++;S.stats.rounds++;
-  let messages=[];
-  if(Math.random()<.085){S.freeRounds++;messages.push('🎟️ BONUS: +1 free scratch round!')}
-  if(Math.random()<.07){S.coins+=5;S.stats.winCoins+=5;messages.push('🪙 BONUS: +5 coins!')}
-  if(Math.random()<.045){S.packs++;messages.push('🎁 BONUS: +1 mystery pack!')}
-  if(t.round>=5){
-    t.finished=true;t.prize=getPrize(t);S.coins+=t.prize;S.stats.winCoins+=t.prize;
-    if(Math.random()<.12){S.packs++;t.bonus.push('Mystery pack')}
-    if(Math.random()<.025){S.freeTickets++;t.bonus.push('Free ticket')}
-    S.history.unshift({type:t.type,prize:t.prize,when:new Date().toISOString()});S.history=S.history.slice(0,20);
-    messages.push(t.prize?`🎉 Ticket complete! You won ${t.prize} virtual coins.`:'Ticket complete! No coin win this time.');
-  } else messages.push(`Round ${t.round} completed. ${ticketProgress(t)}`);
-  notice=messages.join('  ');save();return render();
+  t.lastReveal=[...t.pending];t.revealed.push(...t.pending);t.pending=null;t.round++;S.stats.rounds++;
+  const messages=[];
+  if(Math.random()<.085){S.freeRounds++;messages.push('Bonus: one free scratch round!')}
+  if(Math.random()<.07){S.coins+=5;S.stats.winCoins+=5;messages.push('Bonus: 5 coins!')}
+  if(Math.random()<.045){S.packs++;messages.push('Bonus: one mystery pack!')}
+  if(t.round>=5){t.finished=true;t.prize=getPrize(t);S.coins+=t.prize;S.stats.winCoins+=t.prize;
+   if(Math.random()<.12){S.packs++;t.bonus.push('Mystery pack')}
+   if(Math.random()<.025){S.freeTickets++;t.bonus.push('Free ticket')}
+   S.history.unshift({type:t.type,prize:t.prize,when:new Date().toISOString()});S.history=S.history.slice(0,20);
+   messages.push(t.prize?`Ticket complete! You won ${t.prize} virtual coins.`:'Ticket complete! No coin prize this time.');
+  }else messages.push(`Round ${t.round} revealed. ${ticketProgress(t)}`);
+  notice=messages.join('  ');save();render();return;
  }
- if(action==='buyPack'){
-  if(S.coins<PACK_COST)return setNotice('You need 50 coins for a mystery pack.');
-  if(S.owned.length===12)return setNotice('Finish this collection and begin the next before buying packs.');
-  S.coins-=PACK_COST;S.packs++;save();return setNotice('Mystery pack purchased! Open it whenever you like.');
- }
- if(action==='tradeDup'){
-  if(S.duplicates<3)return;
-  if(S.owned.length===12)return setNotice('Start the next collection before trading duplicates.');
-  S.duplicates-=3;S.packs++;save();return setNotice('Three duplicates exchanged for one sealed mystery pack.');
- }
- if(action==='openPack'){
-  if(S.packs<1)return;
-  if(S.owned.length===12)return setNotice('Start your next collection before opening a pack.');
-  S.packs--;const p=project();const results=[];
-  for(let k=0;k<2;k++){
-    const weights=p.items.map((_,i)=>i<7?9:i<10?5:2);
-    let roll=Math.random()*weights.reduce((a,b)=>a+b,0),picked=0;
-    for(let i=0;i<weights.length;i++){roll-=weights[i];if(roll<0){picked=i;break}}
-    const duplicate=S.owned.includes(picked);
-    if(duplicate)S.duplicates++;else S.owned.push(picked);
-    results.push({name:p.items[picked][1],emoji:p.items[picked][0],duplicate,rarity:picked<7?'Common':picked<10?'Uncommon':'Rare'});
+ if(action==='buyPack'){if(S.coins<PACK_COST)return setNotice('You need 50 coins for a pack.');if(S.owned.length===12)return setNotice('Start the next collection first.');S.coins-=PACK_COST;S.packs++;save();return setNotice('Mystery pack added to your vault.')}
+ if(action==='tradeDup'){if(S.duplicates<3||S.owned.length===12)return;S.duplicates-=3;S.packs++;save();return setNotice('Three duplicates traded for one mystery pack.')}
+ if(action==='openPack'){if(S.packs<1||S.owned.length===12)return;S.packs--;const p=project(),results=[];
+  for(let k=0;k<2;k++){const weights=p.items.map((_,i)=>i<7?9:i<10?5:2);let roll=Math.random()*weights.reduce((a,b)=>a+b,0),picked=0;
+   for(let i=0;i<weights.length;i++){roll-=weights[i];if(roll<0){picked=i;break}}
+   const duplicate=S.owned.includes(picked);if(duplicate)S.duplicates++;else S.owned.push(picked);
+   results.push({name:p.items[picked][1],emoji:p.items[picked][0],duplicate,rarity:picked<7?'Common':picked<10?'Uncommon':'Rare'});
   }
   S.packResults=results;save();return render();
  }
  if(action==='clearResults'){S.packResults=null;save();return render()}
- if(action==='nextProject'){
-  if(S.owned.length!==12)return;
-  S.completed.push({index:S.projectIndex,name:projectTitle()});S.projectIndex++;S.owned=[];S.duplicates=0;S.packResults=null;S.stats.projects++;save();return setNotice('New project started! Your completed collection is saved in the gallery.');
- }
- if(action==='export'){
-  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='step-scratchers-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);return;
- }
- if(action==='reset'){
-  if(!confirm('Erase this prototype progress and start over with 6,000 simulated steps?'))return;
-  S=initial();notice='Prototype reset.';selected='bingo';view='scratch';save();return render();
- }
+ if(action==='nextProject'){if(S.owned.length!==12)return;S.completed.push({index:S.projectIndex,name:projectTitle()});S.projectIndex++;S.owned=[];S.duplicates=0;S.packResults=null;S.stats.projects++;save();return setNotice('Collection completed! A new kind of project has started.')}
+ if(action==='export'){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='step-scratchers-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);return}
+ if(action==='import'){document.getElementById('restoreFile')?.click();return}
+ if(action==='reset'){if(!confirm('Erase all demo progress and start with 6,000 simulated steps?'))return;S=initial();S.rulesVersion=2;selected='bingo';view='scratch';notice='Demo reset.';save();return render()}
 }
-function ticketProgress(t){const s=ticketScore(t);return t.type==='bingo'?`${s} completed bingo lines.`:t.type==='crossword'?`${s} completed words.`:`${s} matching triples.`}
-function boardHtml(t){
- if(t.type==='bingo'){
-  const seen=new Set(t.revealed);return `<div class="board-bingo">${'BINGO'.split('').map(x=>`<div class="bingo-head">${x}</div>`).join('')}${t.data.cells.map((n,i)=>`<div class="bingo-cell ${i===12?'free':seen.has(n)?'hit':''}">${i===12?'FREE':n}</div>`).join('')}</div>`;
+function callerHtml(t){const seen=new Set(t.revealed);const recent=new Set(t.lastReveal||[]);const block=(s,a)=>`<div class="calls-grid ${s}">${a.map(n=>`<div class="called-number ${seen.has(n)?'revealed':''} ${recent.has(n)?'recent':''} ${s==='bonus'?'bonus':''}">${seen.has(n)?n:'?'}</div>`).join('')}</div>`;
+ const nums=t.data.source;return `<div class="calls-card"><div class="row"><strong>CALLER'S CARD</strong><small class="rule-small">${t.revealed.length} of 29 calls</small></div>${block('',nums.slice(0,24))}<div class="label" style="margin-top:8px">5 bonus numbers</div>${block('bonus',nums.slice(24))}<p class="rule-small">Each scratch round reveals new numbers. Matching spaces are marked on all six cards automatically.</p></div>`;
+}
+function miniBingoHtml(cells,t,ci){let seen=new Set(t.revealed);let hit=i=>i===12||seen.has(cells[i]);let rows=0,cols=0;for(let r=0;r<5;r++)if([0,1,2,3,4].every(c=>hit(r*5+c)))rows++;for(let c=0;c<5;c++)if([0,1,2,3,4].every(r=>hit(r*5+c)))cols++;
+ const got=rows+cols;return `<div class="mini-bingo"><div class="mini-bingo-header"><strong>CARD ${ci+1}</strong><small>${got} line${got===1?'':'s'}</small></div><div class="mini-bingo-grid">${'BINGO'.split('').map(x=>`<div class="mini-bingo-letter">${x}</div>`).join('')}${cells.map((n,i)=>`<div class="mini-bingo-cell ${i===12?'free':seen.has(n)?'hit':''}">${i===12?'FREE':n}</div>`).join('')}</div><div class="mini-bingo-bonus">Line: ${5+ci*3} coins</div></div>`}
+function bingoHtml(t){const o=bingoOutcomes(t);return `<div class="ticket-top"><strong>Six-card Bingo</strong><span>Scratch the caller numbers. Match lines, corners, or an X across your boards.</span></div>${callerHtml(t)}<div class="bingo-six">${t.data.cards.map((c,i)=>miniBingoHtml(c,t,i)).join('')}</div><div class="prize-strip"><div class="prize-chip"><strong>${o.lines}</strong><small>Winning lines</small></div><div class="prize-chip"><strong>${o.corners}</strong><small>Four-corners</small></div><div class="prize-chip"><strong>${o.xs}</strong><small>X patterns</small></div></div><p class="rule-small">Bonus patterns: four corners = 25 coins, X = 60 coins. Total ticket payout is capped at 120 coins.</p>`}
+function wordGrid(board,t){const seen=new Set(t.revealed),finished=new Set();for(let w of completedWords(board,seen))for(let i=0;i<w.word.length;i++)finished.add(`${w.r+(w.dir==='down'?i:0)},${w.c+(w.dir==='across'?i:0)}`);
+ let n=board.grid.length;return `<div class="crossword-board" style="grid-template-columns:repeat(${n},minmax(0,1fr))">${board.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';let called=seen.has(l),found=finished.has(`${r},${c}`);return `<div class="crosscell ${found?'found':called?'called':''}">${l}</div>`}).join('')).join('')}</div>`}
+function crosswordHtml(t){const o=crossOutcomes(t);const recent=new Set(t.lastReveal||[]),seen=new Set(t.revealed);return `<div class="ticket-top"><strong>Crossword Scratcher</strong><span>Reveal 20 letters across five rounds; completed words highlight automatically.</span></div><div class="calls-card"><div class="row"><strong>YOUR 20 LETTERS</strong><small class="rule-small">${t.revealed.length} / 20 revealed</small></div><div class="letter-bank">${t.data.source.map(l=>`<div class="letter-cell ${seen.has(l)?'called':''}">${seen.has(l)?l:'?'}</div>`).join('')}</div><p class="rule-small">No word solving required: the highlighted letters count toward words in both boards.</p></div><div class="crossword-sheet">${t.data.boards.map((b,i)=>`<div class="crossword-paper"><div class="row"><strong>GAME ${i+1}</strong><span class="pill">${i===0?o.g1:o.g2} words · ${i===0?o.game1Prize:o.game2Prize} coins</span></div>${wordGrid(b,t)}</div>`).join('')}</div><div class="bonus-word ${o.bonus?'done':''}"><div><div class="label">BONUS WORD</div><strong>${esc(t.data.bonusWord)}</strong></div><span class="pill">${o.bonus?'COMPLETE +8':'Complete = +8'}</span></div><div class="prize-strip"><div class="prize-chip"><strong>Game 1: 3 words</strong><small>8 coins</small></div><div class="prize-chip"><strong>Game 1: 5 words</strong><small>18 coins</small></div><div class="prize-chip"><strong>Game 1: 7 words</strong><small>45 coins</small></div></div><p class="rule-small">Each crossword game pays its own prize. Game 1 awards 80 coins for 9+ words. Game 2 pays 3 coins for 2 words, 8 for 3, 18 for 4, and 30 for 5. A completed bonus word adds 8 coins.</p>`}
+function scratchTrayHtml(t){const visible=t.pending||t.lastReveal;if(!visible)return '';
+ return `<div class="label" style="text-align:center;margin-top:15px">${t.pending?`Scratch to reveal round ${t.round+1}`:`Round ${t.round} — your revealed ${t.type==='bingo'?'numbers':'letters'}`}</div><div class="scratch-tray ${t.pending?'':'revealed'}"><div class="scratch-items">${visible.map(x=>`<div class="scratch-item">${esc(x)}</div>`).join('')}</div>${t.pending?'<canvas id="foil" aria-label="Rub silver covering away to reveal your round"></canvas>':''}</div>${t.pending?'<button class="btn ghost wide" data-act="finishScratch">Reveal all instead</button><p class="scratch-note">The silver stays until you scratch at least 97% of it, or tap Reveal all.</p>':'<p class="scratch-note">Your revealed round stays here until you purchase the next one.</p>'}`;
+}
+function ticketHtml(){let t=S.ticket;
+ if(!t||t.finished){const footer=t&&t.finished?`<div class="card"><div class="finish"><div class="em">🎟️</div><h2>${t.prize?'Winning ticket!':'Ticket complete!'}</h2><p class="sub">${(TYPES[t.type]||{label:'Classic'}).label} · ${ticketProgress(t)}</p><div class="big-amount">+${t.prize} coins</div><p class="sub">${t.bonus.length?'Extra: '+t.bonus.join(', '):'Ticket saved to your history.'}</p></div>${scratchTrayHtml(t)}</div>`:'';
+ return `${footer}<div class="card"><div class="sectionline"><div><div class="kicker">Ticket counter</div><h2>Choose your next scratcher</h2></div><span class="pill">30 coins</span></div><div class="select-grid">${Object.entries(TYPES).map(([k,x])=>`<button class="select-game ${selected===k?'selected':''}" data-act="pick" data-arg="${k}"><span class="em">${x.icon}</span><strong>${x.label}</strong><small>5 rounds</small></button>`).join('')}</div><div class="callout" style="margin:14px 0">One active ticket at a time. Bingo has six cards and a caller's card; Crossword has two word grids plus a bonus word.</div><button class="btn wide" data-act="buyTicket" ${S.coins<TICKET_COST&&S.freeTickets===0?'disabled':''}>${S.freeTickets>0?'Use free ticket':'Buy ticket · 30 coins'}</button><p class="note" style="margin-top:11px">Each of the five scratch rounds costs 10 coins, unless you have a free round.</p></div>`;
  }
- if(t.type==='crossword'){
-  const finished=new Set();for(const w of t.data.words)if([...w.word].every(l=>t.revealed.includes(l))){for(let i=0;i<w.word.length;i++){finished.add(`${w.r+(w.dir==='down'?i:0)},${w.c+(w.dir==='across'?i:0)}`)}}
-  return `<div class="crossword-board">${t.data.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';let found=t.revealed.includes(l);return `<div class="crosscell ${!found?'hidden':finished.has(`${r},${c}`)?'found':''}">${found?l:'·'}</div>`}).join('')).join('')}</div>`;
- }
- return `<div class="match-board">${t.data.source.map((s,i)=>`<div class="symbol ${i>=t.revealed.length?'hidden':i>=t.revealed.length-3?'new':''}">${i<t.revealed.length?s:'?'}</div>`).join('')}</div>`;
+ let html=`<div class="card"><div class="sectionline"><div><div class="kicker">Active scratcher</div><h2>${TYPES[t.type].icon} ${TYPES[t.type].label} Ticket</h2></div><span class="pill">${t.round} / 5</span></div><div class="progress"><div style="width:${t.round*20}%"></div></div>${t.type==='bingo'?bingoHtml(t):crosswordHtml(t)}<div class="kpi-row"><div class="kpi"><strong>${t.round}</strong><small>Rounds played</small></div><div class="kpi"><strong>${t.type==='bingo'?bingoOutcomes(t).lines:crossOutcomes(t).total}</strong><small>${t.type==='bingo'?'Lines':'Words'}</small></div><div class="kpi"><strong>${5-t.round}</strong><small>Rounds left</small></div></div>${scratchTrayHtml(t)}`;
+ if(!t.pending)html+=`<div class="callout good" style="margin-top:12px">${esc(ticketProgress(t))} Complete all five rounds to settle the ticket.</div><button class="btn wide" style="margin-top:13px" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free scratch round':'Scratch next round · 10 coins'}</button><p class="note" style="text-align:center;margin-top:9px">${S.freeRounds} free rounds available</p>`;
+ return html+'</div>';
 }
-function ticketHtml(){
- const t=S.ticket;
- if(!t||t.finished){
-  const footer=t&&t.finished?`<div class="card"><div class="finish"><div class="em">${t.prize?'🎉':'🎫'}</div><h2>${t.prize?'Winning ticket!':'Ticket complete!'}</h2><p class="sub">${TYPES[t.type].label} · ${ticketProgress(t)}</p><div class="big-amount">+${t.prize} coins</div><p class="sub">${t.bonus.length?'Extra: '+t.bonus.join(', '):'One finished ticket added to your history.'}</p></div></div>`:'';
-  return `${footer}<div class="card"><div class="sectionline"><div><div class="kicker">Ticket counter</div><h2>Choose your next scratcher</h2></div><span class="pill">30 coins</span></div><div class="select-grid">${Object.entries(TYPES).map(([key,x])=>`<button class="select-game ${selected===key?'selected':''}" data-act="pick" data-arg="${key}"><span class="em">${x.icon}</span><strong>${x.label}</strong><small>5 rounds</small></button>`).join('')}</div><div class="callout" style="margin:14px 0">One active ticket at a time. Every ticket has five scratch rounds. Your completed tickets and collections stay in your history.</div><button class="btn wide" data-act="buyTicket" ${S.coins<TICKET_COST&&S.freeTickets===0?'disabled':''}>${S.freeTickets>0?'Use free ticket':'Buy ticket · 30 coins'}</button><p class="note" style="margin-top:11px">Each scratch round costs 10 coins, unless you've earned a free round.</p></div>`;
- }
- let header=`<div class="card"><div class="sectionline"><div><div class="kicker">Active scratcher</div><h2>${TYPES[t.type].icon} ${TYPES[t.type].label} Ticket</h2></div><span class="pill">${t.round} / 5</span></div><div class="progress"><div style="width:${t.round*20}%"></div></div><div class="ticket-top"><strong>Find your winning combinations</strong><span>${t.type==='bingo'?'Completed lines win coins':t.type==='crossword'?'Completed words win coins automatically':'Three matching symbols make a set'}</span></div>${boardHtml(t)}<div class="kpi-row"><div class="kpi"><strong>${t.round}</strong><small>Rounds played</small></div><div class="kpi"><strong>${ticketScore(t)}</strong><small>${t.type==='bingo'?'Bingo lines':t.type==='crossword'?'Whole words':'Matching sets'}</small></div><div class="kpi"><strong>${5-t.round}</strong><small>Rounds left</small></div></div>`;
- if(t.pending){header+=`<div class="label" style="text-align:center;margin-top:14px">Scratch to uncover round ${t.round+1}</div><div class="scratch-tray"><div class="scratch-items">${t.pending.map(x=>`<div class="scratch-item ${t.type==='match'?'symbol-item':''}">${esc(x)}</div>`).join('')}</div><canvas id="foil" aria-label="Scratch foil to reveal items"></canvas></div><button class="btn ghost wide" data-act="finishScratch">Reveal without scratching</button><p class="note" style="text-align:center;margin-top:8px">Rub the silver foil with your finger, or use the reveal button.</p>`}
- else header+=`<div class="callout good">${esc(ticketProgress(t))} Finish all five rounds to settle your ticket prize.</div><button class="btn wide" style="margin-top:13px" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free scratch round':'Scratch next round · 10 coins'}</button><p class="note" style="text-align:center;margin-top:9px">${S.freeRounds} free scratch rounds saved for later</p>`;
- return header+'</div>';
+function collectHtml(){let p=project(),complete=S.owned.length===p.items.length;
+ let h=`<div class="card"><div class="sectionline"><div><div class="kicker">Current project · ${S.projectIndex+1}</div><h2>${p.icon} ${esc(projectTitle())}</h2></div><span class="pill">${S.owned.length} / 12</span></div><p class="sub">${esc(p.kind)} · Fill every slot to finish and unlock a completely different collection type.</p><div class="progress"><div style="width:${S.owned.length/12*100}%"></div></div><div class="collect-grid">${p.items.map(([emoji,name],i)=>`<div class="collect-item ${!S.owned.includes(i)?'unknown':''}"><div class="art">${S.owned.includes(i)?emoji:'❔'}</div><small>${S.owned.includes(i)?esc(name):'Undiscovered'}</small></div>`).join('')}</div>`;
+ h+=complete?`<div class="callout good" style="margin-bottom:10px">Collection complete! All 12 items discovered.</div><button class="btn wide" data-act="nextProject">Finish collection → Begin next type</button>`:'<div class="callout">Pack drops and contents are random. You may find something new or a duplicate. Your completed collections remain in the gallery.</div>';h+='</div>';
+ h+=`<div class="card"><div class="sectionline"><div><div class="kicker">Mystery pack vault</div><h2>📦 ${S.packs} sealed pack${S.packs===1?'':'s'}</h2></div><span class="pill">2 items / pack</span></div><p class="sub" style="margin-bottom:14px">Open whenever you choose. Each pack contains two random discoveries from your active collection.</p><button class="btn wide" data-act="openPack" ${S.packs===0||complete?'disabled':''}>Open a mystery pack</button>`;
+ if(S.packResults)h+=`<div class="pack-results">${S.packResults.map(v=>`<div class="pack-result"><div class="art">${v.emoji}</div><strong>${esc(v.name)}</strong><small>${v.duplicate?'Duplicate':'New discovery'} · ${v.rarity}</small></div>`).join('')}</div><button class="btn ghost wide" data-act="clearResults">Close results</button>`;
+ h+=`<div class="rule"></div><div class="row"><div><h3>Duplicate exchange</h3><p class="sub">${S.duplicates} duplicate item${S.duplicates===1?'':'s'} · 3 for 1 pack</p></div><button class="btn tiny alt" data-act="tradeDup" ${S.duplicates<3||complete?'disabled':''}>Trade 3</button></div><div class="rule"></div><div class="row"><div><h3>Buy a mystery pack</h3><p class="sub">50 virtual coins</p></div><button class="btn tiny alt" data-act="buyPack" ${S.coins<PACK_COST||complete?'disabled':''}>Buy pack</button></div></div>`;
+ return h+`<div class="card soft"><h3>Completed collection gallery</h3>${S.completed.length?`<p class="sub" style="margin-top:9px">${S.completed.map(c=>'✓ '+esc(c.name)).join(' · ')}</p>`:'<p class="sub" style="margin-top:9px">Your finished projects appear here.</p>'}</div>`;
 }
-function collectHtml(){const p=project();const complete=S.owned.length===p.items.length;
- let html=`<div class="card"><div class="sectionline"><div><div class="kicker">Current project · ${S.projectIndex+1}</div><h2>${p.icon} ${esc(projectTitle())}</h2></div><span class="pill">${S.owned.length} / 12</span></div><p class="sub">${esc(p.kind)} · Fill every slot to finish the project and unlock a completely different collection type.</p><div class="progress"><div style="width:${S.owned.length/12*100}%"></div></div><div class="collect-grid">${p.items.map(([emoji,name],i)=>`<div class="collect-item ${!S.owned.includes(i)?'unknown':''}"><div class="art">${S.owned.includes(i)?emoji:'❔'}</div><small>${S.owned.includes(i)?esc(name):'Undiscovered'}</small></div>`).join('')}</div>`;
- if(complete)html+=`<div class="callout good" style="margin-bottom:10px">🎊 All 12 discoveries found! This collection is finished.</div><button class="btn wide" data-act="nextProject">Complete project → Start a new kind</button>`;
- else html+=`<div class="callout">Cards are discovered at random. Packs can contain new items or duplicates. Every project can be completed without paying real money.</div>`;
- html+='</div>';
- html+=`<div class="card"><div class="sectionline"><div><div class="kicker">Mystery pack vault</div><h2>📦 ${S.packs} sealed pack${S.packs===1?'':'s'}</h2></div><span class="pill">2 items / pack</span></div><p class="sub" style="margin-bottom:14px">Open packs whenever you want. Each one reveals two random items from your current collection.</p><button class="btn wide" data-act="openPack" ${S.packs===0||complete?'disabled':''}>Open a mystery pack</button>`;
- if(S.packResults)html+=`<div class="pack-results">${S.packResults.map(v=>`<div class="pack-result"><div class="art">${v.emoji}</div><strong>${esc(v.name)}</strong><small>${v.duplicate?'Duplicate ♻️':'NEW! ✨'} · ${v.rarity}</small></div>`).join('')}</div><button class="btn ghost wide" data-act="clearResults">Close pack results</button>`;
- html+=`<div class="rule"></div><div class="row"><div><h3>Duplicate exchange</h3><p class="sub">${S.duplicates} duplicate item${S.duplicates===1?'':'s'} · trade 3 for a pack</p></div><button class="btn tiny alt" data-act="tradeDup" ${S.duplicates<3||complete?'disabled':''}>Trade 3 ♻️</button></div><div class="rule"></div><div class="row"><div><h3>Buy a mystery pack</h3><p class="sub">50 virtual coins</p></div><button class="btn tiny alt" data-act="buyPack" ${S.coins<PACK_COST||complete?'disabled':''}>Buy pack</button></div></div>`;
- html+=`<div class="card soft"><h3>Completed collection gallery</h3>${S.completed.length?`<p class="sub" style="margin-top:9px">${S.completed.map(c=>'✓ '+esc(c.name)).join(' · ')}</p>`:'<p class="sub" style="margin-top:9px">Your finished projects will be displayed here forever.</p>'}</div>`;
- return html;
+function walletHtml(){return `<div class="card"><div class="sectionline"><div><div class="kicker">Test the economy</div><h2>Walk → coins → scratch</h2></div></div><div class="callout gold">This version uses simulated steps, not real Apple Health data yet.</div><div class="kpi-row"><div class="kpi"><strong>${Math.floor(S.bank/RATE)}</strong><small>Exchange units</small></div><div class="kpi"><strong>${S.freeRounds}</strong><small>Free rounds</small></div><div class="kpi"><strong>${S.freeTickets}</strong><small>Free tickets</small></div></div><p class="label">Add pretend walking</p><div class="row" style="margin:10px 0 18px;justify-content:stretch"><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="547">+547 steps</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="1000">+1,000</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="6000">+6,000</button></div><div class="row" style="gap:8px"><button class="btn" style="flex:1" data-act="exchange" ${S.bank<RATE?'disabled':''}>Cash 547 → 10 coins</button><button class="btn alt" style="flex:1" data-act="exchangeAll" ${S.bank<RATE?'disabled':''}>Cash all available</button></div><p class="note" style="margin-top:10px">Leftover steps and coins carry over indefinitely. Redeemed steps cannot be used twice.</p></div><div class="card"><h3>Your game statistics</h3><div class="kpi-row"><div class="kpi"><strong>${S.stats.tickets}</strong><small>Tickets bought</small></div><div class="kpi"><strong>${S.stats.rounds}</strong><small>Rounds scratched</small></div><div class="kpi"><strong>${S.stats.projects}</strong><small>Projects finished</small></div></div><div class="row"><span class="sub">Coins from walking</span><strong>${S.stats.walkCoins}</strong></div><div class="rule"></div><div class="row"><span class="sub">Coins won in scratchers</span><strong>${S.stats.winCoins}</strong></div></div><div class="card soft"><h3>Save or reset</h3><p class="sub" style="margin:8px 0 12px">Progress is stored in this browser. Download a backup before clearing website data or moving to another browser.</p><div class="row"><button class="btn tiny alt" data-act="export">Export save</button><button class="btn tiny alt" data-act="import">Import save</button><button class="btn tiny ghost" data-act="reset">Reset demo</button></div><input type="file" id="restoreFile" accept="application/json,.json" style="display:none" aria-label="Choose saved game file"></div>`}
+function render(){const root=document.getElementById('app');root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">PLAYABLE DEMO V2</div></div><div class="wallet"><div class="stat"><small>👟 Step bank</small><strong>${S.bank.toLocaleString()}</strong><em>steps</em></div><div class="stat"><small>🪙 Virtual wallet</small><strong>${S.coins.toLocaleString()}</strong><em>coins</em></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 2 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ for(let el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
+ const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
+ if(S.ticket?.pending&&view==='scratch')setupScratch();
 }
-function walletHtml(){return `<div class="card"><div class="sectionline"><div><div class="kicker">Test the economy</div><h2>Walk → coins → scratch</h2></div></div><div class="callout gold">⚠️ This preview uses simulated steps. It does not read Apple Health or your Apple Watch yet. The eventual Shortcut connection will come after gameplay testing.</div><div class="kpi-row"><div class="kpi"><strong>${Math.floor(S.bank/RATE)}</strong><small>Exchange units</small></div><div class="kpi"><strong>${S.freeRounds}</strong><small>Free rounds</small></div><div class="kpi"><strong>${S.freeTickets}</strong><small>Free tickets</small></div></div><p class="label">Add pretend walking</p><div class="row" style="margin:10px 0 18px;justify-content:stretch"><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="547">+547 steps</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="1000">+1,000</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="6000">+6,000</button></div><div class="row" style="gap:8px"><button class="btn" style="flex:1" data-act="exchange" ${S.bank<RATE?'disabled':''}>Cash 547 → 10 coins</button><button class="btn alt" style="flex:1" data-act="exchangeAll" ${S.bank<RATE?'disabled':''}>Cash all available</button></div><p class="note" style="margin-top:10px">Every leftover step stays in your bank, including across days. Coins don't expire. Redeemed steps aren't reusable.</p></div><div class="card"><h3>Your game statistics</h3><div class="kpi-row"><div class="kpi"><strong>${S.stats.tickets}</strong><small>Tickets bought</small></div><div class="kpi"><strong>${S.stats.rounds}</strong><small>Rounds scratched</small></div><div class="kpi"><strong>${S.stats.projects}</strong><small>Projects finished</small></div></div><div class="row"><span class="sub">Coins from walking</span><strong>${S.stats.walkCoins}</strong></div><div class="rule"></div><div class="row"><span class="sub">Coins won in scratchers</span><strong>${S.stats.winCoins}</strong></div></div><div class="card soft"><div class="row"><div><h3>Save or reset</h3><p class="sub">Progress is saved in this browser. Export a backup before clearing site data.</p></div></div><div class="row" style="margin-top:12px"><button class="btn tiny alt" data-act="export">Export save file</button><button class="btn tiny ghost" data-act="reset">Reset prototype</button></div></div>`}
-function render(){const root=document.getElementById('app');root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered arcade</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">PLAYABLE DEMO</div></div><div class="wallet"><div class="stat"><small>👟 Step bank</small><strong>${S.bank.toLocaleString()}</strong><em>steps</em></div><div class="stat"><small>🪙 Virtual wallet</small><strong>${S.coins.toLocaleString()}</strong><em>coins</em></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Prototype · No ads · No money · No GPS · All rewards fictional<br>One active ticket · Endless tickets & rotating collections</div>`;
-  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
-  if(S.ticket?.pending)setupScratch();
-}
-function setupScratch(){
- const canvas=document.getElementById('foil');if(!canvas)return;const rect=canvas.getBoundingClientRect();if(rect.width<10)return;
- const w=rect.width,h=rect.height,dpr=window.devicePixelRatio||1;
- canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const ctx=canvas.getContext('2d',{willReadFrequently:false});ctx.scale(dpr,dpr);
- ctx.fillStyle='#c7cbcb';ctx.fillRect(0,0,w,h);
- ctx.fillStyle='#3f4456';ctx.font='900 21px ui-rounded, system-ui';ctx.textAlign='center';ctx.fillText('SCRATCH ME',w/2,h/2-3);ctx.font='600 12px ui-rounded, system-ui';ctx.fillText('rub with your finger to reveal',w/2,h/2+21);
- let down=false,prev=null,total=0,done=false;
- function point(e){const b=canvas.getBoundingClientRect();return{x:e.clientX-b.left,y:e.clientY-b.top}}
- function stroke(a,b){ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=42;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.beginPath();ctx.arc(b.x,b.y,21,0,2*Math.PI);ctx.fill();ctx.globalCompositeOperation='source-over'}
- canvas.addEventListener('pointerdown',e=>{down=true;prev=point(e);canvas.setPointerCapture(e.pointerId);stroke(prev,prev);e.preventDefault()});
- canvas.addEventListener('pointermove',e=>{if(!down||done)return;const p=point(e);stroke(prev,p);total+=Math.hypot(p.x-prev.x,p.y-prev.y);prev=p;if(total>Math.max(w*1.4,300)){done=true;down=false;handle('finishScratch')}e.preventDefault()});
- canvas.addEventListener('pointerup',()=>{down=false;prev=null});canvas.addEventListener('pointercancel',()=>{down=false;prev=null});
+function setupScratch(){const canvas=document.getElementById('foil');if(!canvas)return;const rect=canvas.getBoundingClientRect();if(rect.width<10)return;
+ const w=rect.width,h=rect.height,dpr=Math.min(3,window.devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
+ const silver=ctx.createLinearGradient(0,0,w,h);silver.addColorStop(0,'#b0b5b1');silver.addColorStop(.3,'#e2e4de');silver.addColorStop(.6,'#a1aaa7');silver.addColorStop(1,'#c5ccc7');ctx.fillStyle=silver;ctx.fillRect(0,0,w,h);
+ // Matte ticket foil texture, intentionally static and subtle.
+ for(let i=0;i<Math.min(2000,Math.floor(w*h/45));i++){const x=Math.random()*w,y=Math.random()*h;ctx.fillStyle=i%2?'rgba(255,255,255,.18)':'rgba(62,73,69,.10)';ctx.fillRect(x,y,1.2+Math.random()*2,.5+Math.random())}
+ ctx.fillStyle='#405053';ctx.font='800 21px ui-rounded,system-ui';ctx.textAlign='center';ctx.fillText('SCRATCH HERE',w/2,h/2-5);ctx.font='600 12px ui-rounded,system-ui';ctx.fillText('rub away the silver covering',w/2,h/2+19);
+ let down=false,prev=null,moves=0,done=false;
+ function point(e){let b=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(w,e.clientX-b.left)),y:Math.max(0,Math.min(h,e.clientY-b.top))}}
+ function stroke(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=21;
+  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.beginPath();ctx.arc(b.x,b.y,10.5,0,Math.PI*2);ctx.fill();
+  // fine irregular edges make a real rubbed-off look, without animated effects
+  const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy),n=Math.min(14,Math.floor(length/5));
+  for(let i=0;i<n;i++){let f=(i+1)/(n+1),x=a.x+dx*f,y=a.y+dy*f,offset=(i%2?1:-1)*(10+Math.random()*4);ctx.beginPath();ctx.arc(x+(-dy/(length||1))*offset,y+(dx/(length||1))*offset,1.5+Math.random()*2.5,0,Math.PI*2);ctx.fill()}
+  ctx.restore();}
+ function proportion(){let pix=ctx.getImageData(0,0,canvas.width,canvas.height).data,clear=0,total=0,step=Math.max(1,Math.round(dpr*7)),ww=canvas.width,hh=canvas.height;
+ for(let y=step>>1;y<hh;y+=step)for(let x=step>>1;x<ww;x+=step){total++;if(pix[(y*ww+x)*4+3]<24)clear++}return total?clear/total:0}
+ function check(){if(done)return;if(proportion()>=.97){done=true;down=false;handle('finishScratch')}}
+ canvas.addEventListener('pointerdown',e=>{if(done)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}stroke(prev,prev);e.preventDefault()},{passive:false});
+ canvas.addEventListener('pointermove',e=>{if(!down||done)return;let p=point(e);stroke(prev,p);prev=p;moves++;if(moves%11===0)check();e.preventDefault()},{passive:false});
+ canvas.addEventListener('pointerup',e=>{if(down&&!done){down=false;prev=null;check()}e.preventDefault()},{passive:false});canvas.addEventListener('pointercancel',()=>{down=false;prev=null});
 }
 render();
 })();
+
 </script></body></html>
