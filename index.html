@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171724">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Step Scratchers — Direct Scratch Edition</title>
+<title>Step Scratchers — Scratch & Find</title>
 <meta name="description" content="A quiet, ad-free walking-powered bingo and crossword scratcher game.">
 <style>
 :root { color-scheme: dark; --bg:#111521; --surface:#22283e; --surface2:#2f3450; --edge:#49526d; --ink:#f7f7ff; --muted:#b8bfd3; --gold:#ffd782; --pink:#ff9dc8; --teal:#8ef2dc; --purple:#b0abff; --success:#97ebb0; --bingoA:#235d61; --bingoB:#365a7a; --crossA:#6a4a77; --crossB:#8a6a37; --collectA:#43585b; --collectB:#314348; }
@@ -405,6 +405,39 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 @media(max-height:720px){.playing .topbar {min-height:26px}.playing .wallet {margin:2px 0}.playing .nav {margin:2px 0}.live-play-footer {padding:4px 7px}.live-play-head{margin-bottom:3px}}
 @media(prefers-reduced-motion:reduce){.game-stage,.token-field{animation:none!important;transition:none!important}}
 
+
+/* V3.3: full-width scrollable Bingo, natural pinch-to-zoom, and scratchable matching cells */
+#app.playing {padding-left:6px;padding-right:6px;}
+.game-viewport {overflow:auto!important;touch-action:pan-y;overscroll-behavior:contain;border-color:#718096;background:#202b3b;-webkit-overflow-scrolling:touch;}
+.game-stage {border:2px solid #b8c9ce;background:linear-gradient(150deg,#3c4770,#273e53 45%,#28524b);}
+.stage-heading {color:#fff1bc;font-size:15px;}
+.stage-subheading,.stage-guide {color:#f1f7f7;}
+.stage-caller {background:#213c46;border-color:#a7bdc8;}
+.stage-caller-header,.stage-bingo-header,.stage-cross-paper strong {color:#fff4db;}
+.token-field {background:#344654;border-color:#879dac;color:#c9d3df;}
+.token-field.seen {background:#b7ecd9;color:#122d30;border-color:#ebfff6;}
+.stage-bingo-card {background:#234354;border-color:#94b9be;}
+.stage-bingo-card:nth-child(2n) {background:#3d3c5c;border-color:#aaa1cb;}
+.stage-bingo-cell {background:#304759;color:#fff9ed;border:1px solid #7e9aaa;font-size:13px;font-weight:900;}
+.stage-bingo-cell.ready {background:#6f6880;border-color:#f2dcad;color:#fff9ea;}
+.stage-bingo-cell.marked {background:#b5ead4;color:#133b36;border-color:#f1ffed;}
+.stage-bingo-cell.marked:after {content:'✓';position:absolute;right:1px;bottom:-4px;color:#215e4b;font-size:11px;}
+.stage-bingo-cell.free {background:#dbb773;color:#392514;border-color:#f7e6ad;}
+.stage-cross-paper {background:#355351;border-color:#abc6bd;}
+.stage-cross-paper:nth-child(2) {background:#4a4359;border-color:#c0afd0;}
+.stage-cross-grid .crosscell:not(.blank) {color:#f7fcf9;border:1px solid #8196a6;background:#3b4d63;}
+.stage-cross-grid .crosscell.ready {background:#75667e;color:#fff8ef;border-color:#edd1b5;}
+.stage-cross-grid .crosscell.marked,.stage-cross-grid .crosscell.found {background:#bdecd3!important;color:#163b31!important;border-color:#f3ffea!important;}
+.stage-cross-bonus {background:#514759;border-color:#c1a782;}
+.stage-cross-bonus .bonus-char {display:inline-flex;position:relative;min-width:15px;min-height:21px;justify-content:center;align-items:center;border-radius:3px;overflow:hidden;}
+.stage-cross-bonus .bonus-char.ready {background:#78677d;color:#fff8df;}
+.stage-cross-bonus .bonus-char.marked {background:#c8e6c6;color:#193e35;}
+.board-foil {position:absolute;inset:0;width:100%;height:100%;touch-action:none;z-index:2;user-select:none;-webkit-user-select:none;cursor:crosshair;}
+.stage-cross-grid .crosscell,.stage-bingo-cell {position:relative;overflow:hidden;}
+.play-hint {font-size:11px;color:#f1f2e9;min-height:16px;line-height:1.3;padding:3px 2px;}
+.live-play-footer {background:#242e40;border-color:#8b9da8;}
+.live-play-commands .btn[disabled] {opacity:.65;color:#f7f7f5;background:#596273;}
+
 </style>
 </head>
 <body><div id="app"><div class="card"><h2>Step Scratchers</h2><p class="sub" style="margin-top:12px">This file preview cannot run the game. Open the published website in Chrome to play.</p></div></div>
@@ -467,10 +500,10 @@ function makeBoard(n, base, maxWords){
  return {grid,words:entries};
 }
 function makeCrossword(){return {boards:[makeBoard(13,'TREASURE',11),makeBoard(9,'WALK',6)],bonusWord:['LUCKY','PRIZE','GOLD','SMILE','BONUS','HEART'][rand(6)],source:shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')).slice(0,20)}}
-function makeTicket(type){return {id:Date.now(),type,round:0,pending:null,lastReveal:null,revealed:[],data:type==='bingo'?makeBingo():makeCrossword(),finished:false,prize:0,bonus:[],freeRoundsSpent:0}}
-function bingoOutcomes(t){let counts={lines:0,corners:0,xs:0,prize:0};let seen=new Set(t.revealed);
+function makeTicket(type){return {id:Date.now(),type,round:0,pending:null,lastReveal:null,revealed:[],marks:[],data:type==='bingo'?makeBingo():makeCrossword(),finished:false,prize:0,bonus:[],freeRoundsSpent:0}}
+function bingoOutcomes(t){let counts={lines:0,corners:0,xs:0,prize:0};let marks=new Set(t.marks||[]);
  t.data.cards.forEach((cells,ci)=>{
-  const hit=i=>i===12||seen.has(cells[i]);
+  const hit=i=>i===12||marks.has(markKeyB(ci,i));
   const lineSets=[];for(let r=0;r<5;r++)lineSets.push([0,1,2,3,4].map(c=>r*5+c));for(let c=0;c<5;c++)lineSets.push([0,1,2,3,4].map(r=>r*5+c));
   const lines=lineSets.filter(l=>l.every(hit)).length;
   const corners=[0,4,20,24].every(hit)?1:0;
@@ -480,8 +513,9 @@ function bingoOutcomes(t){let counts={lines:0,corners:0,xs:0,prize:0};let seen=n
  });counts.prize=Math.min(120,counts.prize);return counts;
 }
 function completedWords(board,seen){return board.words.filter(w=>[...w.word].every(l=>seen.has(l)))}
-function crossOutcomes(t){const seen=new Set(t.revealed),g1=completedWords(t.data.boards[0],seen).length,g2=completedWords(t.data.boards[1],seen).length;
- const bonus=[...t.data.bonusWord].every(l=>seen.has(l));
+function crossOutcomes(t){
+ const g1=manualCompletedWords(t.data.boards[0],t,0).length,g2=manualCompletedWords(t.data.boards[1],t,1).length;
+ const marks=new Set(t.marks||[]),bonus=Array.from(t.data.bonusWord).every((_,i)=>marks.has(markKeyBonus(i)));
  const game1Prize=g1>=9?80:g1>=7?45:g1>=5?18:g1>=3?8:0;
  const game2Prize=g2>=5?30:g2>=4?18:g2>=3?8:g2>=2?3:0;
  return {g1,g2,total:g1+g2,bonus,game1Prize,game2Prize,prize:Math.min(120,game1Prize+game2Prize+(bonus?8:0))};
@@ -496,9 +530,47 @@ function migrate(){if(S.rulesVersion>=2)return;
  S.rulesVersion=2;save();
 }
 migrate();
+
+// Backward-compatible manual marks: prior auto-highlighted results remain completed.
+function markKeyB(ci,i){return `b:${ci}:${i}`;}
+function markKeyC(bi,r,c){return `c:${bi}:${r}:${c}`;}
+function markKeyBonus(i){return `x:${i}`;}
+function ensureMarks(t){
+ if(!t||t.type!=='bingo'&&t.type!=='crossword')return;
+ if(!Array.isArray(t.marks)){
+  const old=new Set(t.revealed||[]),marks=[];
+  if(t.type==='bingo')t.data.cards.forEach((card,ci)=>card.forEach((n,i)=>{if(i!==12&&old.has(n))marks.push(markKeyB(ci,i))}));
+  else {
+   t.data.boards.forEach((board,bi)=>board.grid.forEach((row,r)=>row.forEach((l,c)=>{if(l&&old.has(l))marks.push(markKeyC(bi,r,c))})));
+   Array.from(t.data.bonusWord).forEach((l,i)=>{if(old.has(l))marks.push(markKeyBonus(i))});
+  }
+  t.marks=marks;save();
+ }
+}
+ensureMarks(S.ticket);
+function expectedMarkKeys(t){
+ if(!t)return [];
+ const seen=new Set(t.revealed||[]),list=[];
+ if(t.type==='bingo')t.data.cards.forEach((card,ci)=>card.forEach((n,i)=>{if(i!==12&&seen.has(n))list.push(markKeyB(ci,i))}));
+ else {
+  t.data.boards.forEach((board,bi)=>board.grid.forEach((row,r)=>row.forEach((l,c)=>{if(l&&seen.has(l))list.push(markKeyC(bi,r,c))})));
+  Array.from(t.data.bonusWord).forEach((l,i)=>{if(seen.has(l))list.push(markKeyBonus(i))});
+ }
+ return list;
+}
+function markCount(t){const expected=expectedMarkKeys(t),mark=new Set(t?.marks||[]);return {total:expected.length,done:expected.filter(k=>mark.has(k)).length,remaining:expected.filter(k=>!mark.has(k)).length};}
+function manualCompletedWords(board,t,bi){const marks=new Set(t.marks||[]);return board.words.filter(w=>[...w.word].every((_,i)=>marks.has(markKeyC(bi,w.r+(w.dir==='down'?i:0),w.c+(w.dir==='across'?i:0)))))}
+function settleTicket(){
+ const t=S.ticket;if(!t||t.finished||t.round<5||t.pending||markCount(t).remaining)return;
+ t.finished=true;t.prize=getPrize(t);S.coins+=t.prize;S.stats.winCoins+=t.prize;
+ if(Math.random()<.12){S.packs++;t.bonus.push('Mystery pack')}
+ if(Math.random()<.025){S.freeTickets++;t.bonus.push('Free ticket')}
+ S.history.unshift({type:t.type,prize:t.prize,when:new Date().toISOString()});S.history=S.history.slice(0,20);
+ notice=t.prize?`Ticket complete! You won ${t.prize} virtual coins.`:'Ticket complete! No coin prize this time.';
+ save();render();
+}
 function setNotice(m){notice=m;render()}
 function handle(action,arg){
- if(action==='zoom'){if(arg==='in')zoomFactor=Math.min(3,Math.round((zoomFactor+.25)*100)/100);else if(arg==='out')zoomFactor=Math.max(1,Math.round((zoomFactor-.25)*100)/100);else zoomFactor=1;fitGame();return;}
  if(action==='tab'){view=arg;archiveOpen=null;notice='';zoomFactor=1;return render()}
  if(action==='openArchive'){const idx=Number(arg);if(!S.completed.some(c=>c.index===idx))return;archiveOpen=idx;notice='';return render()}
  if(action==='closeArchive'){archiveOpen=null;return render()}
@@ -511,7 +583,7 @@ function handle(action,arg){
   S.ticket=makeTicket(selected);zoomFactor=1;S.stats.tickets++;save();return setNotice(`${TYPES[selected].label} ticket ready! Five rounds to complete.`);
  }
  if(action==='buyRound'){
-  const t=S.ticket;if(!t||t.finished||t.pending||t.round>=5)return;
+  const t=S.ticket;if(!t||t.finished||t.pending||t.round>=5||markCount(t).remaining>0)return;
   if(S.freeRounds>0){S.freeRounds--;t.freeRoundsSpent++}else if(S.coins>=ROUND_COST)S.coins-=ROUND_COST;else return setNotice('You need 10 coins for your next round.');
   if(t.type==='bingo'){const offsets=[0,6,12,18,24],sizes=[6,6,6,6,5];t.pending=t.data.source.slice(offsets[t.round],offsets[t.round]+sizes[t.round]);}
   else t.pending=t.data.source.slice(t.round*4,t.round*4+4);
@@ -524,14 +596,19 @@ function handle(action,arg){
   if(Math.random()<.085){S.freeRounds++;messages.push('Bonus: one free scratch round!')}
   if(Math.random()<.07){S.coins+=5;S.stats.winCoins+=5;messages.push('Bonus: 5 coins!')}
   if(Math.random()<.045){S.packs++;messages.push('Bonus: one mystery pack!')}
-  if(t.round>=5){t.finished=true;t.prize=getPrize(t);S.coins+=t.prize;S.stats.winCoins+=t.prize;
-   if(Math.random()<.12){S.packs++;t.bonus.push('Mystery pack')}
-   if(Math.random()<.025){S.freeTickets++;t.bonus.push('Free ticket')}
-   S.history.unshift({type:t.type,prize:t.prize,when:new Date().toISOString()});S.history=S.history.slice(0,20);
-   messages.push(t.prize?`Ticket complete! You won ${t.prize} virtual coins.`:'Ticket complete! No coin prize this time.');
-  }else messages.push(`Round ${t.round} revealed. ${ticketProgress(t)}`);
-  notice=messages.join('  ');save();render();return;
+  const remaining=markCount(t).remaining;
+  messages.push(`Now scratch ${remaining} matching space${remaining===1?'':'s'} on the card.`);
+  notice=messages.join('  ');save();render();
+  if(t.round>=5&&remaining===0)settleTicket();
+  return;
  }
+ if(action==='markBoard'){
+  const t=S.ticket;if(!t||!Array.isArray(t.marks)||t.marks.includes(arg)||!expectedMarkKeys(t).includes(arg))return;
+  t.marks.push(arg);save();
+  if(t.round>=5&&markCount(t).remaining===0)return settleTicket();
+  return render();
+ }
+
  if(action==='buyPack'){if(S.coins<PACK_COST)return setNotice('You need 50 coins for a pack.');if(S.owned.length===12)return setNotice('Start the next collection first.');S.coins-=PACK_COST;S.packs++;save();return setNotice('Mystery pack added to your vault.')}
  if(action==='tradeDup'){if(S.duplicates<3||S.owned.length===12)return;S.duplicates-=3;S.packs++;save();return setNotice('Three duplicates traded for one mystery pack.')}
  if(action==='openPack'){if(S.packs<1||S.owned.length===12)return;S.packs--;const p=project(),results=[];
@@ -576,42 +653,80 @@ function gameToken(n,t,bonus=false){
  return `<div class="token-field ${bonus?'bonus':''} ${seen||shown?'seen':''}" data-token-wrap="${n}"><span class="token-text">${seen||isPending?n:'?'}</span>${isPending&&!shown?`<canvas class="token-foil" data-scratch-token="${n}" aria-label="Scratch off ${t.type==='bingo'?'number':'letter'}"></canvas>`:''}</div>`;
 }
 function activeBingoHtml(t){
- const seen=new Set(activeSeen(t));const block=(numbers,bonus)=>`<div class="stage-calls ${bonus?'bonus':''}">${numbers.map(n=>gameToken(n,t,bonus)).join('')}</div>`;
+ const seen=new Set(activeSeen(t)),marks=new Set(t.marks||[]),block=(numbers,bonus)=>`<div class="stage-calls ${bonus?'bonus':''}">${numbers.map(n=>gameToken(n,t,bonus)).join('')}</div>`;
  const cards=t.data.cards.map((cells,ci)=>{
-   const hit=i=>i===12||seen.has(cells[i]);let lines=0;
+   const hit=i=>i===12||marks.has(markKeyB(ci,i));let lines=0;
    for(let r=0;r<5;r++)if([0,1,2,3,4].every(c=>hit(r*5+c)))lines++;
    for(let c=0;c<5;c++)if([0,1,2,3,4].every(r=>hit(r*5+c)))lines++;
-   return `<div class="stage-bingo-card"><div class="stage-bingo-header"><strong>CARD ${ci+1}</strong><small>${lines} line${lines===1?'':'s'}</small></div><div class="stage-bingo-grid">${'BINGO'.split('').map(l=>`<div class="stage-bingo-letter">${l}</div>`).join('')}${cells.map((n,i)=>`<div ${n!==null?`data-bingo-num="${n}"`:''} class="stage-bingo-cell ${i===12?'free':seen.has(n)?'hit':''}">${i===12?'FREE':n}</div>`).join('')}</div><div class="stage-bingo-prize">LINE ${5+ci*3} COINS · CORNERS 25 · X 60</div></div>`;
+   return `<div class="stage-bingo-card"><div class="stage-bingo-header"><strong>CARD ${ci+1}</strong><small>${lines} line${lines===1?'':'s'}</small></div><div class="stage-bingo-grid">${'BINGO'.split('').map(l=>`<div class="stage-bingo-letter">${l}</div>`).join('')}${cells.map((n,i)=>{const key=markKeyB(ci,i),done=marks.has(key),ready=i!==12&&seen.has(n)&&!done;return `<div class="stage-bingo-cell ${i===12?'free':done?'marked':ready?'ready':''}">${i===12?'FREE':n}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${n}" aria-label="Scratch Bingo ${n}"></canvas>`:''}</div>`}).join('')}</div><div class="stage-bingo-prize">LINE ${5+ci*3} COINS · CORNERS 25 · X 60</div></div>`;
  }).join('');
  return `<div class="stage-heading">BINGO × SIX</div><div class="stage-caller"><div class="stage-caller-header"><strong>SCRATCH CALLER'S NUMBERS</strong><small>${activeSeen(t).length} / 29</small></div>${block(t.data.source.slice(0,24),false)}<div class="stage-caller-header" style="margin-top:6px"><strong>BONUS NUMBERS</strong><small>last round</small></div>${block(t.data.source.slice(24),true)}</div><div class="stage-bingo-six">${cards}</div>`;
 }
 function activeCrosswordHtml(t){
- const seen=new Set(activeSeen(t));
- const grids=t.data.boards.map((b,i)=>{
-   const found=new Set();for(const w of completedWords(b,seen))for(let k=0;k<w.word.length;k++)found.add(`${w.r+(w.dir==='down'?k:0)},${w.c+(w.dir==='across'?k:0)}`);
-   return `<div class="stage-cross-paper"><strong>GAME ${i+1} · ${completedWords(b,seen).length} WORDS</strong><div class="stage-cross-grid ${i?'secondary':''}" style="grid-template-columns:repeat(${b.grid.length},minmax(0,1fr))">${b.grid.map((row,r)=>row.map((letter,c)=>!letter?'<div class="crosscell blank"></div>':`<div data-cross-letter="${letter}" class="crosscell ${found.has(`${r},${c}`)?'found':seen.has(letter)?'called':''}">${letter}</div>`).join('')).join('')}</div></div>`;
+ const seen=new Set(activeSeen(t)),marks=new Set(t.marks||[]);
+ const grids=t.data.boards.map((b,bi)=>{
+  const doneWords=manualCompletedWords(b,t,bi),found=new Set();
+  for(const w of doneWords)for(let k=0;k<w.word.length;k++)found.add(`${w.r+(w.dir==='down'?k:0)},${w.c+(w.dir==='across'?k:0)}`);
+  return `<div class="stage-cross-paper"><strong>GAME ${bi+1} · ${doneWords.length} WORDS</strong><div class="stage-cross-grid ${bi?'secondary':''}" style="grid-template-columns:repeat(${b.grid.length},minmax(0,1fr))">${b.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';const key=markKeyC(bi,r,c),done=marks.has(key),ready=seen.has(l)&&!done;return `<div class="crosscell ${found.has(`${r},${c}`)?'found':done?'marked':ready?'ready':''}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" aria-label="Scratch crossword ${l}"></canvas>`:''}</div>`}).join('')).join('')}</div></div>`;
  }).join('');
- const bonus=Array.from(t.data.bonusWord).every(l=>seen.has(l));
- return `<div class="stage-heading">CROSSWORD SCRATCHER</div><div class="stage-cross-bank"><div class="stage-caller-header"><strong>SCRATCH YOUR 20 LETTERS</strong><small>${seen.size} / 20</small></div><div class="stage-letter-grid">${t.data.source.map(l=>gameToken(l,t)).join('')}</div></div><div class="stage-cross-columns">${grids}</div><div class="stage-cross-bonus"><strong>${esc(t.data.bonusWord)}</strong><small>${bonus?'BONUS WORD COMPLETE!':'BONUS WORD · +8 COINS'}</small></div>`;
+ const bonus=Array.from(t.data.bonusWord).every((_,i)=>marks.has(markKeyBonus(i)));
+ const bonusLetters=Array.from(t.data.bonusWord).map((l,i)=>{const key=markKeyBonus(i),done=marks.has(key),ready=seen.has(l)&&!done;return `<span class="bonus-char ${done?'marked':ready?'ready':''}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" aria-label="Scratch bonus word ${l}"></canvas>`:''}</span>`}).join('');
+ return `<div class="stage-heading">CROSSWORD SCRATCHER</div><div class="stage-cross-bank"><div class="stage-caller-header"><strong>SCRATCH YOUR 20 LETTERS</strong><small>${activeSeen(t).length} / 20</small></div><div class="stage-letter-grid">${t.data.source.map(l=>gameToken(l,t)).join('')}</div></div><div class="stage-cross-columns">${grids}</div><div class="stage-cross-bonus"><strong>${bonusLetters}</strong><small>${bonus?'BONUS COMPLETE!':'SCRATCH MATCHES · +8 COINS'}</small></div>`;
 }
 function playHtml(t){
- const status=t.pending?`Scratch ${t.type==='bingo'?'each new caller number':'the four new letters'} · ${(t.pendingShown||[]).length} of ${t.pending.length} revealed`:
-  notice||`${t.round} of 5 rounds played · ${t.type==='bingo'?bingoOutcomes(t).lines+' winning lines':crossOutcomes(t).total+' completed words'}`;
- const action=t.pending?`<button class="btn ghost" data-act="finishScratch">Reveal all</button>`:`<button class="btn" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free round':'Scratch next round · 10 coins'}</button>`;
- return `<div class="live-play"><div class="live-play-head"><strong>${TYPES[t.type].icon} ${TYPES[t.type].label} scratch ticket</strong><span class="pill">Round ${t.round+(t.pending?1:0)} / 5</span></div><div class="game-viewport" id="gameViewport"><div class="game-scaler" id="gameScaler"><div class="game-stage" id="gameStage">${t.type==='bingo'?activeBingoHtml(t):activeCrosswordHtml(t)}<div class="stage-guide">Scratch the silver areas above · Numbers and words mark automatically</div></div></div></div><div class="live-play-footer"><div class="live-play-status" id="playStatus">${esc(status)}</div><div class="live-play-commands">${action}<div class="play-zoom"><button aria-label="Zoom out" data-act="zoom" data-arg="out">−</button><button aria-label="Fit ticket to screen" data-act="zoom" data-arg="fit">FIT</button><button aria-label="Zoom in" data-act="zoom" data-arg="in">+</button></div></div></div></div>`;
+ const left=markCount(t).remaining;
+ const status=t.pending?`Scratch new ${t.type==='bingo'?'caller numbers':'letters'} · ${(t.pendingShown||[]).length} of ${t.pending.length} revealed`:
+  left?`Find and scratch ${left} matching space${left===1?'':'s'} to continue`:
+  notice||`${t.round} of 5 rounds · ${t.type==='bingo'?bingoOutcomes(t).lines+' lines':crossOutcomes(t).total+' words'}`;
+ const action=t.pending?`<button class="btn ghost" data-act="finishScratch">Reveal caller's numbers / letters</button>`:
+ t.round>=5?`<button class="btn" disabled>Finish scratching your matches</button>`:
+ left?`<button class="btn" disabled>${left} matching spaces left</button>`:
+ `<button class="btn" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free round':'Scratch next round · 10 coins'}</button>`;
+ return `<div class="live-play"><div class="live-play-head"><strong>${TYPES[t.type].icon} ${TYPES[t.type].label} scratch ticket</strong><span class="pill">Round ${t.round+(t.pending?1:0)} / 5</span></div><div class="play-hint">Scratch your calls first, then find and scratch their matches on the card. Pinch with two fingers to zoom.</div><div class="game-viewport" id="gameViewport"><div class="game-scaler" id="gameScaler"><div class="game-stage" id="gameStage">${t.type==='bingo'?activeBingoHtml(t):activeCrosswordHtml(t)}<div class="stage-guide">Your matched spaces must be scratched by hand.</div></div></div></div><div class="live-play-footer"><div class="live-play-status" id="playStatus">${esc(status)}</div><div class="live-play-commands">${action}</div></div></div>`;
 }
-function fitGame(){
+function fitGame(anchor){
  const vp=document.getElementById('gameViewport'),stage=document.getElementById('gameStage'),scaler=document.getElementById('gameScaler');if(!vp||!stage||!scaler)return;
  const width=stage.offsetWidth,height=stage.scrollHeight;
- if(!width||!height||!vp.clientWidth||!vp.clientHeight)return;
- const fit=Math.min(vp.clientWidth/width,vp.clientHeight/height,1);
- const scale=Math.min(3,fit*zoomFactor);
+ if(!width||!height||!vp.clientWidth)return;
+ const fit=Math.min(1,vp.clientWidth/width),scale=Math.min(3.5,fit*zoomFactor);
+ const oldW=scaler.getBoundingClientRect().width||vp.clientWidth,oldH=scaler.getBoundingClientRect().height||height*fit;
+ const oldX=anchor?anchor.x:null,oldY=anchor?anchor.y:null;
+ const fx=oldX===null?.5:(vp.scrollLeft+oldX)/Math.max(oldW,1);
+ const fy=oldY===null?.2:(vp.scrollTop+oldY)/Math.max(oldH,1);
  stage.style.transform=`scale(${scale})`;
  scaler.style.width=`${width*scale}px`;scaler.style.height=`${height*scale}px`;
- vp.style.overflow=zoomFactor>1.01?'auto':'hidden';
- scaler.style.marginLeft=zoomFactor<=1.01?`${Math.max(0,(vp.clientWidth-width*scale)/2)}px`:'0px';
- scaler.style.marginTop=zoomFactor<=1.01?`${Math.max(0,(vp.clientHeight-height*scale)/2)}px`:'0px';
+ scaler.style.marginLeft='0px';scaler.style.marginTop='0px';
+ // Center horizontally only when narrower than the viewport (fit usually fills it).
+ if(width*scale<vp.clientWidth)scaler.style.marginLeft=`${(vp.clientWidth-width*scale)/2}px`;
+ if(anchor) {vp.scrollLeft=Math.max(0,fx*width*scale-oldX);vp.scrollTop=Math.max(0,fy*height*scale-oldY)}
 }
+let pinching=false;
+function setupPinchZoom(){
+ const vp=document.getElementById('gameViewport');if(!vp)return;
+ let initialDistance=0,initialFactor=1,worldX=0,worldY=0;
+ const center=touches=>{const r=vp.getBoundingClientRect();return {x:(touches[0].clientX+touches[1].clientX)/2-r.left,y:(touches[0].clientY+touches[1].clientY)/2-r.top}};
+ const dist=touches=>Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY);
+ vp.addEventListener('touchstart',e=>{
+   if(e.touches.length!==2)return;
+   pinching=true;initialDistance=dist(e.touches);initialFactor=zoomFactor;
+   const p=center(e.touches),scaler=document.getElementById('gameScaler');
+   worldX=(vp.scrollLeft+p.x)/Math.max(scaler.getBoundingClientRect().width,1);
+   worldY=(vp.scrollTop+p.y)/Math.max(scaler.getBoundingClientRect().height,1);
+   if(e.cancelable)e.preventDefault();
+ },{passive:false,capture:true});
+ vp.addEventListener('touchmove',e=>{
+   if(e.touches.length<2||!pinching)return;
+   if(e.cancelable)e.preventDefault();
+   const p=center(e.touches),factor=Math.max(1,Math.min(3.6,initialFactor*dist(e.touches)/Math.max(initialDistance,1)));
+   zoomFactor=factor;fitGame();
+   const scaler=document.getElementById('gameScaler');
+   vp.scrollLeft=Math.max(0,worldX*scaler.getBoundingClientRect().width-p.x);
+   vp.scrollTop=Math.max(0,worldY*scaler.getBoundingClientRect().height-p.y);
+ },{passive:false,capture:true});
+ const stop=e=>{if(e.touches.length<2)pinching=false};
+ vp.addEventListener('touchend',stop,{capture:true});vp.addEventListener('touchcancel',stop,{capture:true});
+}
+
 function setupInlineScratch(){
  const t=S.ticket;if(!t?.pending)return;
  const pending=t.pending;
@@ -670,10 +785,10 @@ function walletHtml(){return `<div class="card"><div class="sectionline"><div><d
 function render(){
  const root=document.getElementById('app'),playing=!!(view==='scratch'&&S.ticket&&!S.ticket.finished);
  root.classList.toggle('playing',playing);
- root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">DEMO V3.2</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.2 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">DEMO V3.3</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.3 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
- if(playing){fitGame();setupInlineScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
+ if(playing){fitGame();setupPinchZoom();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
 }
 window.addEventListener('resize',()=>fitGame());
 function setupScratch(){
@@ -746,6 +861,35 @@ function setupScratch(){
   e.preventDefault();
  },{passive:false});
  canvas.addEventListener('pointercancel',()=>{down=false;prev=null});
+}
+function setupBoardScratch(){
+ const t=S.ticket;if(!t||t.finished)return;
+ for(const canvas of document.querySelectorAll('canvas[data-mark]')){
+  const key=canvas.dataset.mark,label=canvas.dataset.markLabel||'';
+  const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(3,window.devicePixelRatio||1);
+  if(w<8||h<8)continue;
+  canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
+  ctx.fillStyle='#d2d8dd';ctx.fillRect(0,0,w,h);
+  for(let j=0;j<10;j++){ctx.fillStyle=j%2?'#ffffff33':'#44536622';ctx.fillRect(Math.random()*w,Math.random()*h,1.3,1.3)}
+  ctx.fillStyle='#273544';ctx.font=`900 ${Math.max(9,Math.min(14,h*.65))}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,w/2,h/2);
+  let down=false,prev=null,complete=false,moves=0;
+  const point=e=>{const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}};
+  function erase(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineWidth=Math.max(5,w*.30);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
+  function coverage(){const px=ctx.getImageData(0,0,canvas.width,canvas.height).data;let cleared=0,total=0;for(let y=Math.floor(canvas.height*.18);y<canvas.height*.82;y+=2)for(let x=Math.floor(canvas.width*.15);x<canvas.width*.85;x+=2){total++;if(px[(y*canvas.width+x)*4+3]<50)cleared++}return total?cleared/total:0}
+  function check(){if(complete||coverage()<.6)return;complete=true;down=false;
+    if(!Array.isArray(t.marks))t.marks=[];
+    if(!t.marks.includes(key))t.marks.push(key);
+    canvas.parentElement.classList.remove('ready');canvas.parentElement.classList.add('marked');canvas.remove();save();
+    const left=markCount(t).remaining;
+    const status=document.getElementById('playStatus');if(status)status.textContent=left?`Scratch ${left} more matching spot${left===1?'':'s'} on your card`:'All matches found!';
+    if(left===0){if(t.round>=5)return settleTicket();render()}
+  }
+  canvas.addEventListener('pointerdown',e=>{if(pinching||complete)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;if(moves%3===0)check();e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointerup',e=>{if(down&&!complete){down=false;check()}e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointercancel',()=>{down=false});
+ }
 }
 render();
 })();
