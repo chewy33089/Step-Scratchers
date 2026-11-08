@@ -6,13 +6,13 @@
 <meta name="theme-color" content="#171724">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Step Scratchers — Bingo & Crossword</title>
+<title>Step Scratchers — Direct Scratch Edition</title>
 <meta name="description" content="A quiet, ad-free walking-powered bingo and crossword scratcher game.">
 <style>
-:root { color-scheme: dark; --bg:#12131d; --surface:#222437; --surface2:#2c2d45; --edge:#43445d; --ink:#f8f7ff; --muted:#b2b4c9; --gold:#ffd580; --pink:#ff92bd; --teal:#8ff3da; --purple:#a8a3ff; --success:#93edab; }
+:root { color-scheme: dark; --bg:#111521; --surface:#22283e; --surface2:#2f3450; --edge:#49526d; --ink:#f7f7ff; --muted:#b8bfd3; --gold:#ffd782; --pink:#ff9dc8; --teal:#8ef2dc; --purple:#b0abff; --success:#97ebb0; --bingoA:#235d61; --bingoB:#365a7a; --crossA:#6a4a77; --crossB:#8a6a37; --collectA:#43585b; --collectB:#314348; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html,body { margin:0; padding:0; min-height:100%; background:var(--bg); color:var(--ink); font-family:ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-body { background: radial-gradient(ellipse at 10% -5%, #333054 0, transparent 44%), radial-gradient(ellipse at 100% 35%, #1e3441 0, transparent 38%),var(--bg); }
+body { background: radial-gradient(ellipse at 8% -4%, #3b3465 0, transparent 42%), radial-gradient(ellipse at 96% 18%, #214759 0, transparent 34%), radial-gradient(ellipse at 50% 120%, #294238 0, transparent 28%), var(--bg); }
 button { font:inherit; cursor:pointer; touch-action:manipulation; color:inherit; }
 button:disabled { opacity:.4; cursor:not-allowed; }
 button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
@@ -21,16 +21,16 @@ button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 .brand { font-size:23px; font-weight:900; letter-spacing:-.9px; }
 .brand span { color:var(--gold); }
 .kicker { font-size:10px; text-transform:uppercase; letter-spacing:1.5px; color:var(--teal); font-weight:800; margin-bottom:5px; }
-.demo { border-radius:999px; padding:6px 9px; font-size:10px; letter-spacing:.4px; color:var(--muted); border:1px solid var(--edge); white-space:nowrap; }
+.demo { border-radius:999px; padding:6px 9px; font-size:10px; letter-spacing:.4px; color:#e8edf7; border:1px solid #5b6481; white-space:nowrap; background:linear-gradient(135deg,#2d3552,#26323b); box-shadow:0 3px 10px #0a0d1740; }
 .wallet { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:14px 0 12px; }
-.stat { padding:13px 15px; border:1px solid var(--edge); border-radius:15px; background:rgba(45,45,67,.72); }
+.stat { padding:13px 15px; border:1px solid var(--edge); border-radius:15px; background:linear-gradient(145deg,rgba(42,46,69,.92),rgba(31,38,56,.92)); box-shadow:0 8px 20px #0c102040; animation:softRise .24s ease both; }
 .stat small { display:block; color:var(--muted); font-size:11px; letter-spacing:.2px; margin-bottom:6px; }
 .stat strong { font-size:26px; font-weight:850; letter-spacing:-.7px; }
 .stat em { font-style:normal; color:var(--muted); font-size:11px; margin-left:3px; }
-.nav { display:grid; grid-template-columns:repeat(3,1fr); background:#28283b; border:1px solid var(--edge); padding:4px; border-radius:14px; gap:4px; margin-bottom:17px; }
-.nav button { background:transparent; border:0; border-radius:10px; padding:10px 2px; font-size:13px; color:var(--muted); font-weight:750; }
-.nav button.active { background:linear-gradient(145deg,#504374,#393856); color:white; box-shadow:0 2px 7px #08071366; }
-.card { background:linear-gradient(145deg,#2a2941,#222538); border:1px solid var(--edge); border-radius:19px; padding:17px; margin:12px 0; box-shadow:0 7px 22px #0b0b1545; }
+.nav { display:grid; grid-template-columns:repeat(3,1fr); background:linear-gradient(145deg,#2d3046,#25283a); border:1px solid var(--edge); padding:4px; border-radius:14px; gap:4px; margin-bottom:17px; box-shadow:0 8px 20px #0d101d35; }
+.nav button { background:transparent; border:0; border-radius:10px; padding:10px 2px; font-size:13px; color:var(--muted); font-weight:750; transition:transform .16s ease, background .22s ease, color .22s ease, box-shadow .22s ease; }
+.nav button.active { background:linear-gradient(145deg,#4f587d,#324b55); color:white; box-shadow:0 6px 14px #0807134d; }
+.card { background:linear-gradient(145deg,#282d44,#22283a); border:1px solid var(--edge); border-radius:19px; padding:17px; margin:12px 0; box-shadow:0 10px 24px #0b0f1a40; animation:softRise .24s ease both; }
 .card.soft { background:rgba(39,40,61,.7); }
 .sectionline { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:13px; }
 h1,h2,h3,p { margin:0; }
@@ -40,8 +40,8 @@ h3 { font-size:15px; font-weight:850; }
 .sub { color:var(--muted); font-size:13px; line-height:1.52; }
 .pill { font-size:11px; font-weight:800; letter-spacing:.2px; color:#171724; background:var(--gold); padding:5px 8px; border-radius:999px; white-space:nowrap; }
 .label { font-size:11px; text-transform:uppercase; letter-spacing:1.2px; font-weight:850; color:var(--muted); }
-.btn { border:0; background:linear-gradient(135deg,#ffc875,#ff9d84); color:#272033; border-radius:13px; min-height:44px; padding:11px 15px; font-size:14px; font-weight:900; box-shadow:0 5px 12px #11112388; }
-.btn.alt { background:#3c3a59; color:#f7f4ff; box-shadow:none; border:1px solid #595674; }
+.btn { border:0; background:linear-gradient(135deg,#ffd77f,#ffae8e); color:#272033; border-radius:13px; min-height:44px; padding:11px 15px; font-size:14px; font-weight:900; box-shadow:0 5px 12px #11112370; transition:transform .15s ease, box-shadow .18s ease, filter .18s ease; }
+.btn.alt { background:linear-gradient(135deg,#3f4361,#33424d); color:#f7f4ff; box-shadow:none; border:1px solid #5b6780; }
 .btn.ghost { background:transparent; color:var(--muted); border:1px solid var(--edge); box-shadow:none; }
 .btn.wide { width:100%; }
 .btn.tiny { padding:8px 10px; min-height:34px; font-size:12px; border-radius:9px; }
@@ -49,13 +49,13 @@ h3 { font-size:15px; font-weight:850; }
 .row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .price { font-size:13px; color:var(--gold); font-weight:800; }
 .select-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
-.select-game { background:#2b2a43; border:2px solid #44435f; padding:15px 5px; min-height:128px; border-radius:15px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; }
-.select-game.selected { border-color:var(--gold); background:#3b3450; }
+.select-game { background:#2b2a43; border:2px solid #44435f; padding:15px 5px; min-height:128px; border-radius:15px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; transition:transform .16s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease; box-shadow:0 6px 14px #0c102033; }
+.select-game.selected { border-color:var(--gold); background:#3b3450; transform:translateY(-1px); box-shadow:0 10px 20px #0b111c40; }
 .select-game .em { font-size:34px; }
 .select-game strong { font-size:13px; }
 .select-game small { font-size:10px; color:var(--muted); }
 .progress { width:100%; height:9px; background:#111421; border-radius:99px; overflow:hidden; margin:10px 0 7px; border:1px solid #313146; }
-.progress > div { height:100%; background:linear-gradient(90deg,#9ec7ff,#a9f3d7); border-radius:99px; transition:width .35s; }
+.progress > div { height:100%; background:linear-gradient(90deg,#8fc2ff,#8ef2dc,#ffd782); border-radius:99px; transition:width .25s ease; }
 .callout { padding:10px 12px; background:#201f36; border-radius:11px; border:1px solid #42405a; color:#ddd9f5; font-size:12px; line-height:1.45; }
 .callout.good { border-color:#4c927b; background:#1d3536; }
 .callout.gold { border-color:#877047; background:#3b3331; }
@@ -74,12 +74,12 @@ h3 { font-size:15px; font-weight:850; }
 .symbol { aspect-ratio:1; display:flex; justify-content:center; align-items:center; border-radius:10px; background:#313248; border:1px solid #4c506c; font-size:25px; }
 .symbol.hidden { color:#565972; }
 .symbol.new { border-color:var(--gold); background:#574348; }
-.scratch-tray { position:relative; border:2px solid #b7abb8; border-radius:14px; min-height:138px; overflow:hidden; margin:14px 0 9px; background:linear-gradient(145deg,#1c3a4b,#302844); }
+.scratch-tray { position:relative; border:2px solid #c7b9c4; border-radius:14px; min-height:138px; overflow:hidden; margin:14px 0 9px; background:linear-gradient(145deg,#234a56,#3a2d51); box-shadow:inset 0 0 0 1px #ffffff12, 0 8px 18px #10162a33; }
 .scratch-items { display:flex; justify-content:center; align-content:center; align-items:center; flex-wrap:wrap; gap:7px; min-height:138px; padding:15px; }
 .scratch-item { background:#d6eee3; color:#262634; border-radius:9px; min-width:39px; min-height:39px; padding:6px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; box-shadow:inset 0 -2px 0 #9cbab4; }
 .scratch-item.symbol-item { font-size:25px; }
 .scratch-tray canvas { touch-action:none; user-select:none; -webkit-user-select:none; display:block; position:absolute; inset:0; width:100%; height:100%; cursor:crosshair; }
-.ticket-top { background:linear-gradient(120deg,#604474,#49466c); border:1px dashed #b69acf; border-radius:12px; padding:13px; text-align:center; margin:11px 0; }
+.ticket-top { background:linear-gradient(120deg,#5c4475,#556684); border:1px dashed #c8acd4; border-radius:12px; padding:13px; text-align:center; margin:11px 0; box-shadow:inset 0 0 0 1px #ffffff10; }
 .ticket-top strong { display:block; text-transform:uppercase; letter-spacing:1.6px; font-size:15px; }
 .ticket-top span { display:block; color:#e6dbf0; font-size:11px; margin-top:4px; }
 .kpi-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin:10px 0 12px; }
@@ -102,7 +102,7 @@ h3 { font-size:15px; font-weight:850; }
 .pack-result .art { font-size:41px; margin-bottom:7px; }
 .pack-result strong { display:block; font-size:13px; }
 .pack-result small { display:block; margin-top:5px; font-size:11px; color:#d4bfdf; }
-.notice { margin:12px 0; padding:11px 12px; border-radius:12px; font-size:12px; border:1px solid #737056; background:#433c37; color:#fff0cf; line-height:1.5; }
+.notice { margin:12px 0; padding:11px 12px; border-radius:12px; font-size:12px; border:1px solid #7a765a; background:linear-gradient(135deg,#473f39,#3b3f35); color:#fff0cf; line-height:1.5; animation:softFade .28s ease both; }
 .note { font-size:11px; line-height:1.5; color:var(--muted); }
 .rule { height:1px; background:var(--edge); margin:15px 0; }
 .bottom { margin-top:24px; padding-top:10px; font-size:11px; color:#8b8da3; text-align:center; line-height:1.5; }
@@ -111,8 +111,8 @@ h3 { font-size:15px; font-weight:850; }
 
 /* Quiet, static visual treatment: no flashing, bounce, transitions, or confetti. */
 :root { --bg:#16191e; --surface:#22282e; --surface2:#2a3137; --edge:#4b555c; --ink:#f2f1eb; --muted:#b5c0c3; --gold:#ddc89d; --pink:#ddc89d; --teal:#9ac3b8; --purple:#b9b8cf; --success:#a6d0b4; }
-*,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important;}
-body {background:var(--bg)!important;}
+*,*::before,*::after {scroll-behavior:auto!important;}
+body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),radial-gradient(ellipse at 100% 35%,#1d3e4a 0%,transparent 38%),var(--bg)!important;}
 .stat {background:var(--surface);}
 .nav {background:#242a30;}
 .nav button.active {background:#39434b;box-shadow:none;}
@@ -196,6 +196,215 @@ body {background:var(--bg)!important;}
 .scratch-item {min-width:36px;min-height:36px;}
 @media(max-width:370px){.mini-bingo {padding:5px;}.mini-bingo-cell {font-size:10px;}.calls-grid {gap:2px;}.called-number {height:31px;}.letter-cell {height:30px;}.prize-strip {gap:4px;}}
 @media(prefers-reduced-motion: reduce){*,*:before,*:after{animation:none!important;transition:none!important;}}
+/* V3: restore the clearer, softly colorful V1 scratch-panel appearance. */
+.scratch-tray {border:2px solid #b7abb8; background:linear-gradient(145deg,#1c3a4b,#302844); min-height:138px;}
+.scratch-items {min-height:138px;}
+.scratch-item {background:#d6eee3; color:#262634; min-width:39px; min-height:39px; box-shadow:inset 0 -2px 0 #9cbab4;}
+
+/* V3 Collections Edition: six genuinely distinct static display styles. */
+.collection-shell {--collection-accent:#d7bb83;--collection-muted:#776b52;}
+.collection-shell.kind-stickers {--collection-accent:#a4d4ad;--collection-muted:#536c5a;}
+.collection-shell.kind-museum {--collection-accent:#c9b997;--collection-muted:#6d6251;}
+.collection-shell.kind-medals {--collection-accent:#e1bb79;--collection-muted:#7c6241;}
+.collection-shell.kind-postcards {--collection-accent:#b0c9de;--collection-muted:#526e83;}
+.collection-shell.kind-patches {--collection-accent:#c5aed8;--collection-muted:#695575;}
+.collection-hero {border:1px solid var(--collection-muted);border-radius:17px;overflow:hidden;background:#242d32;margin-bottom:14px;}
+.collection-hero-art {min-height:125px;position:relative;display:flex;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 70% 20%,#ffffff11,transparent 45%),linear-gradient(145deg,#414845,#283338);border-bottom:1px solid #ffffff20;}
+.kind-cards .collection-hero-art {background:linear-gradient(140deg,#554935,#32312e);}
+.kind-stickers .collection-hero-art {background:linear-gradient(140deg,#405a4c,#273c39);}
+.kind-museum .collection-hero-art {background:repeating-linear-gradient(90deg,#3d3830 0 22px,#403b33 23px 44px);}
+.kind-medals .collection-hero-art {background:linear-gradient(140deg,#504433,#2f3334);}
+.kind-postcards .collection-hero-art {background:linear-gradient(145deg,#334b5b,#29363b);}
+.kind-patches .collection-hero-art {background:repeating-linear-gradient(40deg,#414050 0 3px,#444251 3px 6px);}
+.hero-sample.mystery {color:#c8c2ae;border-style:dashed;font-size:30px;}
+.hero-sample {width:65px;height:75px;border-radius:9px;border:2px solid #ffffff50;background:#ffffff12;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 5px 12px #0002;}
+.kind-cards .hero-sample:first-child {transform:rotate(-8deg);}
+.kind-cards .hero-sample:last-child {transform:rotate(8deg);}
+.kind-stickers .hero-sample {height:65px;border:3px solid #e1e7d8;border-radius:18px;transform:rotate(-5deg);}
+.kind-stickers .hero-sample:nth-child(2) {transform:rotate(6deg);}
+.kind-museum .hero-sample {height:72px;border:1px solid #9d9483;border-bottom:7px solid #c0aa7d;border-radius:5px;}
+.kind-medals .hero-sample {width:65px;height:65px;border-radius:50%;border:5px double #cbb37a;}
+.kind-postcards .hero-sample {width:82px;height:65px;border:4px solid #d3dcd9;border-radius:3px;transform:rotate(-4deg);}
+.kind-patches .hero-sample {border:2px dashed #d0c4d7;border-radius:22px;}
+.collection-hero-caption {padding:14px 16px;display:flex;gap:8px;align-items:center;justify-content:space-between;}
+.collection-hero-title {font-weight:850;font-size:17px;}
+.collection-hero-sub {font-size:11px;color:var(--muted);margin-top:4px;}
+.collection-meter {background:#1d272a;border-radius:999px;height:10px;overflow:hidden;border:1px solid #485657;margin:12px 0 7px;}
+.collection-meter>div {background:var(--collection-accent);height:100%;transition:none;}
+.collection-milestone {display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--muted);margin-bottom:18px;}
+.collection-milestone strong {color:var(--collection-accent);}
+.collection-page {border:1px solid #505e62;border-radius:13px;overflow:hidden;margin:12px 0;background:#262f34;}
+.collection-page-head {padding:10px 12px;border-bottom:1px solid #465359;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.collection-page-head strong {font-size:12px;color:var(--collection-accent);}
+.collection-page-head small {font-size:11px;color:var(--muted);}
+.collection-page-head .complete-flag {background:#34483e;color:#bce1c7;border:1px solid #577663;padding:3px 7px;border-radius:6px;font-weight:800;}
+.artifact-grid {padding:10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;}
+.artifact {position:relative;min-width:0;min-height:105px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 3px;border:1px solid #6d777b;background:#313a3d;border-radius:10px;text-align:center;overflow:hidden;}
+.artifact.unknown {opacity:.78;background:#242e32;border-style:dashed;border-color:#607078;}
+.artifact .position {position:absolute;top:5px;left:6px;color:#b7c1c2;font-size:9px;letter-spacing:1px;font-weight:750;}
+.artifact .art {font-size:31px;display:flex;align-items:center;justify-content:center;line-height:1;width:56px;height:54px;position:relative;z-index:1;}
+.artifact .name {font-size:10px;font-weight:750;line-height:1.18;margin-top:8px;max-width:100%;color:#e2e7e4;}
+.artifact.unknown .name {color:#8d9c9f;font-weight:550;}
+.artifact.unknown .art {font-size:28px;color:#65787d;}
+.artifact.unknown .art::before {content:'?';}
+.artifact.unknown .art > span {display:none;}
+.kind-cards .artifact {min-height:118px;background:linear-gradient(140deg,#5e503c,#393e43);border:2px solid #ad966e;box-shadow:inset 0 0 0 3px #4c483e;}
+.kind-cards .artifact:before {content:'';position:absolute;inset:6px;border:1px solid #c9b78a70;border-radius:5px;pointer-events:none;}
+.kind-cards .artifact.unknown {background:#2c3235;border:2px dashed #686a63;box-shadow:none;}
+.kind-cards .artifact .art {border-radius:50%;background:#e4d1a721;width:51px;height:51px;}
+.kind-stickers .collection-page {background:#ede8d8;border-color:#8c9989;}
+.kind-stickers .collection-page-head {border-color:#bdc6b3;background:#e7e3d3;}
+.kind-stickers .collection-page-head small {color:#53665b;}
+.kind-stickers .collection-page-head strong {color:#345541;}
+.kind-stickers .artifact {background:transparent;border:0;color:#33463c;min-height:115px;}
+.kind-stickers .artifact .art {font-size:33px;width:60px;height:59px;background:#d2e4cb;border:4px solid #fff9e9;border-radius:22px;box-shadow:0 2px 0 #b0b5a9;transform:rotate(-6deg);}
+.kind-stickers .artifact:nth-child(even) .art {transform:rotate(7deg);}
+.kind-stickers .artifact .name {color:#385047;}
+.kind-stickers .artifact.unknown .art {background:#cbd0be;border:3px dashed #abb5a3;box-shadow:none;}
+.kind-museum .collection-page {background:#332f2a;border-color:#7d6f5c;}
+.kind-museum .collection-page-head {background:#423a30;border-color:#7a6b53;}
+.kind-museum .artifact-grid {background:linear-gradient(180deg,#37322b 0,#37322b 83%,#9c8059 83%,#b09972 88%,#443b32 88%);}
+.kind-museum .artifact {min-height:116px;border:1px solid #a28a64;background:linear-gradient(#ffffff10,#ffffff03);border-radius:3px;}
+.kind-museum .artifact:after {content:'';position:absolute;bottom:24px;left:17%;width:66%;height:7px;border-radius:2px;background:#9b815c;}
+.kind-museum .artifact .position {color:#d5c7a9;}
+.kind-museum .artifact.unknown {background:#38342d;border-style:dashed;}
+.kind-medals .artifact {border:0;background:transparent;min-height:116px;}
+.kind-medals .artifact .art {height:60px;width:60px;border:5px double #c7aa72;border-radius:50%;background:radial-gradient(circle,#6a5a41,#383c3b);font-size:29px;box-shadow:0 3px 5px #0003;}
+.kind-medals .artifact .art:before {content:'';position:absolute;width:12px;height:18px;background:#83789a;top:-19px;border:1px solid #c4afd6;z-index:-1;}
+.kind-medals .artifact.unknown .art {border-color:#687578;border-style:dashed;background:#30383a;box-shadow:none;}
+.kind-postcards .artifact-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;background:#334450;}
+.kind-postcards .artifact {min-height:125px;border:5px solid #d6d7c9;border-radius:4px;background:linear-gradient(155deg,#657f88,#364d60);}
+.kind-postcards .artifact .position {top:3px;left:4px;color:#eef2ec;}
+.kind-postcards .artifact .art {font-size:37px;height:58px;}
+.kind-postcards .artifact .name {font-size:12px;color:#fff9ed;background:#172d3478;padding:3px 7px;max-width:100%;}
+.kind-postcards .artifact:after {content:'✦';position:absolute;right:6px;top:3px;font-size:13px;color:#e9dab9;}
+.kind-postcards .artifact.unknown {background:#354751;border-color:#849196;}
+.kind-patches .collection-page {background:repeating-linear-gradient(45deg,#3e4050,#3e4050 4px,#3c3e4c 4px,#3c3e4c 8px);border-color:#706b79;}
+.kind-patches .artifact {background:#655a73;border:2px dashed #c7b9d5;border-radius:18px;min-height:110px;box-shadow:inset 0 0 0 4px #5d516a;}
+.kind-patches .artifact.unknown {background:#414252;border-color:#6d6c7d;box-shadow:none;}
+.pack-vault-hero {display:flex;align-items:center;gap:15px;padding:12px 13px;border:1px solid #65736d;background:#293436;border-radius:13px;margin:10px 0 15px;}
+.sealed-pack {position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;flex:0 0 88px;height:104px;border:2px solid #d8c595;border-radius:9px;background:linear-gradient(155deg,#53625c,#363b41);box-shadow:inset 0 0 0 4px #d8c59522;}
+.sealed-pack:before,.sealed-pack:after {content:'';height:7px;left:4px;right:4px;position:absolute;border-top:1px dashed #decbad66;border-bottom:1px dashed #decbad66;}
+.sealed-pack:before {top:3px}.sealed-pack:after {bottom:3px}
+.sealed-pack .seal-icon {font-size:36px}.sealed-pack small {color:#efe3c5;font-size:9px;font-weight:850;letter-spacing:1px;}
+.pack-vault-copy strong {font-size:16px;display:block}.pack-vault-copy small {display:block;font-size:12px;line-height:1.45;color:var(--muted);margin-top:6px;}
+.reveal-artifacts {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0;}
+.reveal-artifact {text-align:center;border:1px solid #7a817d;border-radius:12px;padding:12px 8px;background:#35403f;}
+.reveal-artifact .reveal-emblem {font-size:39px;min-height:50px;display:flex;align-items:center;justify-content:center;}
+.reveal-artifact .discovery-flag {font-size:10px;display:inline-block;padding:4px 7px;border-radius:999px;margin:7px 0;color:#eee9d7;background:#4d6557;border:1px solid #729b83;font-weight:900;letter-spacing:.5px;}
+.reveal-artifact.is-duplicate .discovery-flag {background:#55504b;border-color:#85796b;}
+.reveal-artifact strong {display:block;font-size:12px}.reveal-artifact small {display:block;color:var(--muted);font-size:10px;margin-top:5px;}
+.duplicate-pouch {background:#293338;border:1px solid #56656b;border-radius:12px;padding:12px;margin:16px 0;}
+.duplicate-head {display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.duplicate-tray {display:flex;gap:8px;margin:12px 0;}
+.duplicate-slot {width:56px;height:72px;border:1px dashed #77827e;border-radius:7px;background:#1f282d;display:flex;align-items:center;justify-content:center;font-size:26px;color:#69777a;}
+.duplicate-slot.filled {border:1px solid #bea985;background:linear-gradient(145deg,#545149,#353b3b);color:#e3d3af;}
+.duplicate-foot {display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.gallery-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px;}
+.gallery-tile {text-align:left;padding:0;border:1px solid #66716c;border-radius:12px;background:#293339;overflow:hidden;}
+.gallery-tile .gallery-art {height:76px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:26px;background:linear-gradient(135deg,#4a554d,#343f42);}
+.gallery-tile.kind-stickers .gallery-art {background:#435b4b;}
+.gallery-tile.kind-museum .gallery-art {background:#514b3e;}
+.gallery-tile.kind-medals .gallery-art {background:#5c503d;}
+.gallery-tile.kind-postcards .gallery-art {background:#435c6c;}
+.gallery-tile.kind-patches .gallery-art {background:#575269;}
+.gallery-tile .gallery-text {padding:10px;}
+.gallery-tile .gallery-text strong {display:block;font-size:12px;line-height:1.3;}
+.gallery-tile .gallery-text small {display:block;font-size:10px;color:var(--muted);margin-top:5px;}
+.gallery-tile .gallery-text em {font-style:normal;font-size:10px;color:#b7e2c7;font-weight:850;}
+.gallery-head {display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.archive-tag {border:1px solid #718773;color:#c5e3c9;padding:4px 7px;border-radius:8px;font-size:10px;font-weight:850;}
+
+.btn:hover,.btn.alt:hover,.btn.ghost:hover,.select-game:hover,.gallery-tile:hover,.artifact:hover,.pack-result:hover{filter:brightness(1.03);}
+.btn:active,.nav button:active,.select-game:active,.gallery-tile:active,.artifact:active,.pack-result:active{transform:translateY(1px) scale(.985);}
+.reveal-artifact,.pack-result,.gallery-tile,.sealed-pack,.duplicate-pouch{animation:softRise .26s ease both;}
+.select-grid .select-game:first-child{background:linear-gradient(145deg,#2b3d49,#293b4a);border-color:#4d6872;}
+.select-grid .select-game:first-child.selected{background:linear-gradient(145deg,#2c5556,#355273);border-color:#9de9d7;}
+.select-grid .select-game:last-child{background:linear-gradient(145deg,#44324e,#4c3d36);border-color:#6d5a64;}
+.select-grid .select-game:last-child.selected{background:linear-gradient(145deg,#5d4567,#6b5a34);border-color:#ffd782;}
+.kpi{transition:transform .16s ease, background .2s ease;border:1px solid #384056;background:linear-gradient(145deg,#23273b,#1d2234);}
+.kpi:hover{transform:translateY(-1px);}
+.collect-item,.artifact,.gallery-tile,.pack-result{transition:transform .18s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;}
+.collect-item:hover,.artifact:hover,.gallery-tile:hover,.pack-result:hover{box-shadow:0 8px 16px #0d111d2a;}
+@keyframes softRise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes softFade{from{opacity:0}to{opacity:1}}
+@media(max-width:370px){.artifact-grid{gap:5px;padding:7px}.artifact{min-height:102px}.artifact .art{width:47px;height:50px;font-size:27px}.artifact .name{font-size:9px}.gallery-grid{gap:8px}}
+
+
+/* V3.2 — screen-fitting, directly scratchable ticket view */
+#app.playing {height:100dvh;max-width:660px;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding: max(5px,env(safe-area-inset-top)) 10px max(6px,env(safe-area-inset-bottom));}
+.playing .topbar {padding:0;min-height:30px;flex-shrink:0;}
+.playing .topbar .kicker {display:none;}
+.playing .brand {font-size:18px;letter-spacing:-.5px;}
+.playing .demo {font-size:9px;padding:4px 7px;}
+.playing .wallet {margin:4px 0;gap:6px;flex-shrink:0;}
+.playing .stat {padding:4px 10px;border-radius:9px;box-shadow:none;animation:none;display:flex;align-items:baseline;gap:5px;white-space:nowrap;}
+.playing .stat small {font-size:10px;margin:0;flex-shrink:0;}
+.playing .stat strong {font-size:16px;}
+.playing .stat em {font-size:10px;}
+.playing .nav {margin:3px 0 4px;padding:2px;gap:2px;flex-shrink:0;border-radius:10px;box-shadow:none;}
+.playing .nav button {padding:5px 1px;font-size:11px;border-radius:8px;}
+.playing .notice,.playing .bottom {display:none;}
+.live-play {display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+.live-play-head {display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 1px 5px;flex-shrink:0;}
+.live-play-head strong {font-size:14px;letter-spacing:.2px;}
+.live-play-head small {font-size:11px;color:var(--muted);}
+.live-play-head .pill {font-size:10px;padding:4px 7px;}
+.game-viewport {min-height:0;min-width:0;flex:1;overflow:hidden;overscroll-behavior:contain;border:1px solid #536073;border-radius:13px;background:linear-gradient(145deg,#28314a,#222d3d);touch-action:pan-x pan-y;}
+.game-scaler {position:relative;transform-origin:top left;}
+.game-stage {position:absolute;inset:0 auto auto 0;width:400px;padding:7px 8px 11px;transform-origin:top left;display:block;background:linear-gradient(150deg,#303652,#29364a 42%,#263e40);border:1px solid #8c8c9a;border-radius:10px;box-shadow:inset 0 0 0 3px #ffffff07;}
+.stage-heading {font-size:14px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;text-align:center;color:#f6e4bb;margin:1px 0 6px;}
+.stage-subheading {font-size:10px;color:#c7d7dd;text-align:center;margin-bottom:7px;}
+.stage-caller {background:#273f45;border:1px solid #69838a;border-radius:9px;padding:7px;margin:0 0 7px;}
+.stage-caller-header {display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:11px;font-weight:800;}
+.stage-caller-header small {color:#c0d0d2;font-size:9px;}
+.stage-calls {display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;}
+.stage-calls.bonus {grid-template-columns:repeat(5,minmax(0,1fr));margin-top:4px;}
+.token-field {height:26px;position:relative;display:flex;align-items:center;justify-content:center;background:#34434c;color:#90a0a7;border:1px solid #6c7d85;border-radius:5px;font-weight:900;font-size:12px;overflow:hidden;}
+.token-field.seen {color:#172c2e;background:#9bd9c6;border-color:#d5ede5;}
+.token-field.bonus {background:#4a414b;border-color:#8a7a84;}
+.token-field.bonus.seen {background:#e1c596;color:#3b2d28;}
+.token-field .token-foil {position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none;z-index:2;}
+.token-field .token-text {pointer-events:none;}
+.stage-bingo-six {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
+.stage-bingo-card {padding:5px;background:#233744;border:1px solid #6e8893;border-radius:7px;min-width:0;}
+.stage-bingo-card:nth-child(2n) {background:#333450;border-color:#7a7793;}
+.stage-bingo-header {display:flex;justify-content:space-between;color:#f6edd4;font-size:11px;font-weight:900;margin:0 0 3px;}
+.stage-bingo-header small {font-size:9px;font-weight:600;color:#d0d8e1;}
+.stage-bingo-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;}
+.stage-bingo-grid .stage-bingo-letter {text-align:center;color:#cdece5;font-size:10px;font-weight:900;height:13px;line-height:13px;}
+.stage-bingo-cell {display:flex;align-items:center;justify-content:center;position:relative;aspect-ratio:1;background:#3c4c5b;color:#f5f6f2;font-weight:850;font-size:13px;border:1px solid #718392;border-radius:3px;}
+.stage-bingo-cell.hit {background:#85bdab;border-color:#b0e4d0;color:#163c39;}
+.stage-bingo-cell.hit:after {content:'•';position:absolute;right:1px;bottom:-4px;font-size:12px;color:#20594a;}
+.stage-bingo-cell.free {font-size:9px;background:#a88656;color:#fff5e2;border-color:#dbb97c;}
+.stage-bingo-prize {font-size:9px;color:#d5e5e1;text-align:center;margin-top:3px;}
+.stage-cross-bank {background:#333c50;border:1px solid #9a8daa;border-radius:9px;padding:7px;margin-bottom:9px;}
+.stage-letter-grid {display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;}
+.stage-letter-grid .token-field {height:31px;font-size:15px;background:#4c415c;border-color:#91809d;}
+.stage-letter-grid .token-field.seen {background:#e1c89b;color:#362b37;border-color:#ffe4b9;}
+.stage-cross-columns {display:grid;grid-template-columns:245px 130px;gap:7px;align-items:start;}
+.stage-cross-paper {background:#324548;border:1px solid #778c80;border-radius:6px;padding:5px;min-width:0;}
+.stage-cross-paper:nth-child(2) {background:#403b4d;border-color:#95849b;}
+.stage-cross-paper strong {font-size:10px;color:#fae5b8;display:block;margin-bottom:3px;}
+.stage-cross-grid {display:grid;gap:1px;}
+.stage-cross-grid .crosscell {aspect-ratio:1;min-width:0;border-radius:1px;font-weight:850;font-size:12px;}
+.stage-cross-grid.secondary .crosscell {font-size:9px;}
+.stage-cross-grid .crosscell.blank{background:transparent;border:0;}
+.stage-cross-bonus {background:#484052;border:1px solid #998b78;padding:7px;margin-top:9px;border-radius:6px;display:flex;align-items:center;justify-content:space-between;}
+.stage-cross-bonus strong {letter-spacing:2px;font-size:14px;color:#f2dbab;}
+.stage-cross-bonus small {color:#ded4d7;font-size:10px;}
+.live-play-footer {flex-shrink:0;border:1px solid #535d70;border-radius:12px;margin-top:5px;padding:6px 8px;background:linear-gradient(145deg,#272c40,#25323a);}
+.live-play-status {font-size:11px;min-height:14px;color:#e4e5e6;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;margin:1px 0 5px;}
+.live-play-commands {display:flex;gap:6px;align-items:center;justify-content:space-between;}
+.live-play-commands .btn {font-size:13px;padding:9px 10px;min-height:38px;flex:1;}
+.live-play-commands .btn.ghost {flex:0 0 auto;}
+.play-zoom {display:flex;gap:3px;align-items:center;flex-shrink:0;}
+.play-zoom button {min-width:32px;min-height:38px;border-radius:8px;border:1px solid #627285;background:#344257;font-size:15px;font-weight:850;color:#f3f6f3;padding:0 6px;}
+.play-zoom button:nth-child(2) {min-width:37px;font-size:10px;}
+.stage-guide {font-size:9px;color:#b7c9d2;text-align:center;margin-top:5px;}
+@media(max-height:720px){.playing .topbar {min-height:26px}.playing .wallet {margin:2px 0}.playing .nav {margin:2px 0}.live-play-footer {padding:4px 7px}.live-play-head{margin-bottom:3px}}
+@media(prefers-reduced-motion:reduce){.game-stage,.token-field{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body><div id="app"><div class="card"><h2>Step Scratchers</h2><p class="sub" style="margin-top:12px">This file preview cannot run the game. Open the published website in Chrome to play.</p></div></div>
@@ -214,7 +423,7 @@ const PROJECTS=[
  {title:'The Patch Collection',kind:'Patch Board',icon:'🧵',items:[['🚀','Rocket'],['🪐','Planet'],['🧋','Bubble Tea'],['🎸','Guitar'],['🎈','Balloon'],['🎨','Paintbrush'],['🎧','Headphones'],['🛼','Skates'],['🎯','Target'],['🪁','Kite'],['🧲','Magnet'],['🪩','Disco Ball']]}
 ];
 const WORDS=['TREASURE','SPARK','LUCK','BONUS','COIN','GOLD','CARD','STAR','KEY','GEM','CROWN','PEARL','WALK','PRIZE','WIN','TICKET','GARDEN','SECRET','LUCKY','MYSTERY','DAWN','OCEAN','CLOUD','LIGHT','FLOWER','SHINE','DREAM','SMILE','SILVER','BRIGHT','RIBBON','HEART','GIFT','PEACE','STONE','SHELL','APE','SEA','RUN','HAT','TREE','NOTE','RING','TALL','WEAR','DICE','BIRD','TIDE','OIL','ICE','SAND','JAM','MAP','TEN','CAT','BLUE','FIVE','TWO','NEW','OWL','MOON','RAIN','TOY','BELL','FAN','GLOW','NEST','HOME','RIVER','ROSE','WIND','ECHO','NICE','FIRE','TINY','GLOW','READ','LAMP'];
-let view='scratch',selected='bingo',notice='',S=load();
+let view='scratch',selected='bingo',notice='',archiveOpen=null,zoomFactor=1,S=load();
 function initial(){return {version:1,bank:6000,coins:0,freeRounds:0,freeTickets:0,ticket:null,projectIndex:0,owned:[],duplicates:0,packs:0,packResults:null,completed:[],stats:{tickets:0,rounds:0,walkCoins:0,winCoins:0,projects:0},history:[]}}
 function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1&&Number.isFinite(x.bank)&&Number.isFinite(x.coins))return x;}catch(e){}return initial()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -289,25 +498,28 @@ function migrate(){if(S.rulesVersion>=2)return;
 migrate();
 function setNotice(m){notice=m;render()}
 function handle(action,arg){
- if(action==='tab'){view=arg;notice='';return render()}
+ if(action==='zoom'){if(arg==='in')zoomFactor=Math.min(3,Math.round((zoomFactor+.25)*100)/100);else if(arg==='out')zoomFactor=Math.max(1,Math.round((zoomFactor-.25)*100)/100);else zoomFactor=1;fitGame();return;}
+ if(action==='tab'){view=arg;archiveOpen=null;notice='';zoomFactor=1;return render()}
+ if(action==='openArchive'){const idx=Number(arg);if(!S.completed.some(c=>c.index===idx))return;archiveOpen=idx;notice='';return render()}
+ if(action==='closeArchive'){archiveOpen=null;return render()}
  if(action==='pick'){selected=arg;return render()}
  if(action==='addSteps'){S.bank+=Number(arg);save();return setNotice(`Added ${Number(arg).toLocaleString()} simulated steps.`)}
  if(action==='exchange'||action==='exchangeAll'){const count=action==='exchange'?1:Math.floor(S.bank/RATE);if(count<1)return;S.bank-=count*RATE;S.coins+=count*COINS_PER_RATE;S.stats.walkCoins+=count*COINS_PER_RATE;save();return setNotice(`Exchanged ${count*RATE} simulated steps for ${count*COINS_PER_RATE} coins.`)}
  if(action==='buyTicket'){
   if(S.ticket&&!S.ticket.finished)return setNotice('Finish your current ticket first.');
   if(S.freeTickets>0)S.freeTickets--;else if(S.coins>=TICKET_COST)S.coins-=TICKET_COST;else return setNotice('You need 30 coins for a ticket. Exchange some banked steps.');
-  S.ticket=makeTicket(selected);S.stats.tickets++;save();return setNotice(`${TYPES[selected].label} ticket ready! Five rounds to complete.`);
+  S.ticket=makeTicket(selected);zoomFactor=1;S.stats.tickets++;save();return setNotice(`${TYPES[selected].label} ticket ready! Five rounds to complete.`);
  }
  if(action==='buyRound'){
   const t=S.ticket;if(!t||t.finished||t.pending||t.round>=5)return;
   if(S.freeRounds>0){S.freeRounds--;t.freeRoundsSpent++}else if(S.coins>=ROUND_COST)S.coins-=ROUND_COST;else return setNotice('You need 10 coins for your next round.');
   if(t.type==='bingo'){const offsets=[0,6,12,18,24],sizes=[6,6,6,6,5];t.pending=t.data.source.slice(offsets[t.round],offsets[t.round]+sizes[t.round]);}
   else t.pending=t.data.source.slice(t.round*4,t.round*4+4);
-  t.lastReveal=null;notice='';save();render();document.querySelector('.scratch-tray')?.scrollIntoView({block:'center',behavior:'instant'});return;
+  t.lastReveal=null;t.pendingShown=[];notice='';save();render();return;
  }
  if(action==='finishScratch'){
   const t=S.ticket;if(!t||!t.pending)return;
-  t.lastReveal=[...t.pending];t.revealed.push(...t.pending);t.pending=null;t.round++;S.stats.rounds++;
+  t.lastReveal=[...t.pending];t.revealed.push(...t.pending);t.pending=null;t.pendingShown=[];t.round++;S.stats.rounds++;
   const messages=[];
   if(Math.random()<.085){S.freeRounds++;messages.push('Bonus: one free scratch round!')}
   if(Math.random()<.07){S.coins+=5;S.stats.winCoins+=5;messages.push('Bonus: 5 coins!')}
@@ -331,7 +543,7 @@ function handle(action,arg){
   S.packResults=results;save();return render();
  }
  if(action==='clearResults'){S.packResults=null;save();return render()}
- if(action==='nextProject'){if(S.owned.length!==12)return;S.completed.push({index:S.projectIndex,name:projectTitle()});S.projectIndex++;S.owned=[];S.duplicates=0;S.packResults=null;S.stats.projects++;save();return setNotice('Collection completed! A new kind of project has started.')}
+ if(action==='nextProject'){if(S.owned.length!==12)return;S.completed.push({index:S.projectIndex,name:projectTitle(),completedAt:new Date().toISOString()});S.projectIndex++;S.owned=[];/* duplicate exchange credits carry over */S.packResults=null;S.stats.projects++;save();return setNotice('Collection completed! A new kind of project has started.')}
  if(action==='export'){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='step-scratchers-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);return}
  if(action==='import'){document.getElementById('restoreFile')?.click();return}
  if(action==='reset'){if(!confirm('Erase all demo progress and start with 6,000 simulated steps?'))return;S=initial();S.rulesVersion=2;selected='bingo';view='scratch';notice='Demo reset.';save();return render()}
@@ -346,51 +558,194 @@ function wordGrid(board,t){const seen=new Set(t.revealed),finished=new Set();for
  let n=board.grid.length;return `<div class="crossword-board" style="grid-template-columns:repeat(${n},minmax(0,1fr))">${board.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';let called=seen.has(l),found=finished.has(`${r},${c}`);return `<div class="crosscell ${found?'found':called?'called':''}">${l}</div>`}).join('')).join('')}</div>`}
 function crosswordHtml(t){const o=crossOutcomes(t);const recent=new Set(t.lastReveal||[]),seen=new Set(t.revealed);return `<div class="ticket-top"><strong>Crossword Scratcher</strong><span>Reveal 20 letters across five rounds; completed words highlight automatically.</span></div><div class="calls-card"><div class="row"><strong>YOUR 20 LETTERS</strong><small class="rule-small">${t.revealed.length} / 20 revealed</small></div><div class="letter-bank">${t.data.source.map(l=>`<div class="letter-cell ${seen.has(l)?'called':''}">${seen.has(l)?l:'?'}</div>`).join('')}</div><p class="rule-small">No word solving required: the highlighted letters count toward words in both boards.</p></div><div class="crossword-sheet">${t.data.boards.map((b,i)=>`<div class="crossword-paper"><div class="row"><strong>GAME ${i+1}</strong><span class="pill">${i===0?o.g1:o.g2} words · ${i===0?o.game1Prize:o.game2Prize} coins</span></div>${wordGrid(b,t)}</div>`).join('')}</div><div class="bonus-word ${o.bonus?'done':''}"><div><div class="label">BONUS WORD</div><strong>${esc(t.data.bonusWord)}</strong></div><span class="pill">${o.bonus?'COMPLETE +8':'Complete = +8'}</span></div><div class="prize-strip"><div class="prize-chip"><strong>Game 1: 3 words</strong><small>8 coins</small></div><div class="prize-chip"><strong>Game 1: 5 words</strong><small>18 coins</small></div><div class="prize-chip"><strong>Game 1: 7 words</strong><small>45 coins</small></div></div><p class="rule-small">Each crossword game pays its own prize. Game 1 awards 80 coins for 9+ words. Game 2 pays 3 coins for 2 words, 8 for 3, 18 for 4, and 30 for 5. A completed bonus word adds 8 coins.</p>`}
 function scratchTrayHtml(t){const visible=t.pending||t.lastReveal;if(!visible)return '';
- return `<div class="label" style="text-align:center;margin-top:15px">${t.pending?`Scratch to reveal round ${t.round+1}`:`Round ${t.round} — your revealed ${t.type==='bingo'?'numbers':'letters'}`}</div><div class="scratch-tray ${t.pending?'':'revealed'}"><div class="scratch-items">${visible.map(x=>`<div class="scratch-item">${esc(x)}</div>`).join('')}</div>${t.pending?'<canvas id="foil" aria-label="Rub silver covering away to reveal your round"></canvas>':''}</div>${t.pending?'<button class="btn ghost wide" data-act="finishScratch">Reveal all instead</button><p class="scratch-note">The silver stays until you scratch at least 97% of it, or tap Reveal all.</p>':'<p class="scratch-note">Your revealed round stays here until you purchase the next one.</p>'}`;
+ return `<div class="label" style="text-align:center;margin-top:15px">${t.pending?`Scratch to reveal round ${t.round+1}`:`Round ${t.round} — your revealed ${t.type==='bingo'?'numbers':'letters'}`}</div><div class="scratch-tray ${t.pending?'':'revealed'}"><div class="scratch-items">${visible.map(x=>`<div class="scratch-item">${esc(x)}</div>`).join('')}</div>${t.pending?'<canvas id="foil" aria-label="Rub silver covering away to reveal your round"></canvas>':''}</div>${t.pending?'<button class="btn ghost wide" data-act="finishScratch">Reveal all instead</button><p class="scratch-note">Uncover every number or letter to finish automatically, or tap Reveal all.</p>':'<p class="scratch-note">Your revealed round stays here until you purchase the next one.</p>'}`;
 }
 function ticketHtml(){let t=S.ticket;
- if(!t||t.finished){const footer=t&&t.finished?`<div class="card"><div class="finish"><div class="em">🎟️</div><h2>${t.prize?'Winning ticket!':'Ticket complete!'}</h2><p class="sub">${(TYPES[t.type]||{label:'Classic'}).label} · ${ticketProgress(t)}</p><div class="big-amount">+${t.prize} coins</div><p class="sub">${t.bonus.length?'Extra: '+t.bonus.join(', '):'Ticket saved to your history.'}</p></div>${scratchTrayHtml(t)}</div>`:'';
+ if(!t||t.finished){const footer=t&&t.finished?`<div class="card"><div class="finish"><div class="em">🎟️</div><h2>${t.prize?'Winning ticket!':'Ticket complete!'}</h2><p class="sub">${(TYPES[t.type]||{label:'Classic'}).label} · ${ticketProgress(t)}</p><div class="big-amount">+${t.prize} coins</div><p class="sub">${t.bonus.length?'Extra: '+t.bonus.join(', '):'Ticket saved to your history.'}</p></div></div>`:'';
  return `${footer}<div class="card"><div class="sectionline"><div><div class="kicker">Ticket counter</div><h2>Choose your next scratcher</h2></div><span class="pill">30 coins</span></div><div class="select-grid">${Object.entries(TYPES).map(([k,x])=>`<button class="select-game ${selected===k?'selected':''}" data-act="pick" data-arg="${k}"><span class="em">${x.icon}</span><strong>${x.label}</strong><small>5 rounds</small></button>`).join('')}</div><div class="callout" style="margin:14px 0">One active ticket at a time. Bingo has six cards and a caller's card; Crossword has two word grids plus a bonus word.</div><button class="btn wide" data-act="buyTicket" ${S.coins<TICKET_COST&&S.freeTickets===0?'disabled':''}>${S.freeTickets>0?'Use free ticket':'Buy ticket · 30 coins'}</button><p class="note" style="margin-top:11px">Each of the five scratch rounds costs 10 coins, unless you have a free round.</p></div>`;
  }
  let html=`<div class="card"><div class="sectionline"><div><div class="kicker">Active scratcher</div><h2>${TYPES[t.type].icon} ${TYPES[t.type].label} Ticket</h2></div><span class="pill">${t.round} / 5</span></div><div class="progress"><div style="width:${t.round*20}%"></div></div>${t.type==='bingo'?bingoHtml(t):crosswordHtml(t)}<div class="kpi-row"><div class="kpi"><strong>${t.round}</strong><small>Rounds played</small></div><div class="kpi"><strong>${t.type==='bingo'?bingoOutcomes(t).lines:crossOutcomes(t).total}</strong><small>${t.type==='bingo'?'Lines':'Words'}</small></div><div class="kpi"><strong>${5-t.round}</strong><small>Rounds left</small></div></div>${scratchTrayHtml(t)}`;
  if(!t.pending)html+=`<div class="callout good" style="margin-top:12px">${esc(ticketProgress(t))} Complete all five rounds to settle the ticket.</div><button class="btn wide" style="margin-top:13px" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free scratch round':'Scratch next round · 10 coins'}</button><p class="note" style="text-align:center;margin-top:9px">${S.freeRounds} free rounds available</p>`;
  return html+'</div>';
 }
-function collectHtml(){let p=project(),complete=S.owned.length===p.items.length;
- let h=`<div class="card"><div class="sectionline"><div><div class="kicker">Current project · ${S.projectIndex+1}</div><h2>${p.icon} ${esc(projectTitle())}</h2></div><span class="pill">${S.owned.length} / 12</span></div><p class="sub">${esc(p.kind)} · Fill every slot to finish and unlock a completely different collection type.</p><div class="progress"><div style="width:${S.owned.length/12*100}%"></div></div><div class="collect-grid">${p.items.map(([emoji,name],i)=>`<div class="collect-item ${!S.owned.includes(i)?'unknown':''}"><div class="art">${S.owned.includes(i)?emoji:'❔'}</div><small>${S.owned.includes(i)?esc(name):'Undiscovered'}</small></div>`).join('')}</div>`;
- h+=complete?`<div class="callout good" style="margin-bottom:10px">Collection complete! All 12 items discovered.</div><button class="btn wide" data-act="nextProject">Finish collection → Begin next type</button>`:'<div class="callout">Pack drops and contents are random. You may find something new or a duplicate. Your completed collections remain in the gallery.</div>';h+='</div>';
- h+=`<div class="card"><div class="sectionline"><div><div class="kicker">Mystery pack vault</div><h2>📦 ${S.packs} sealed pack${S.packs===1?'':'s'}</h2></div><span class="pill">2 items / pack</span></div><p class="sub" style="margin-bottom:14px">Open whenever you choose. Each pack contains two random discoveries from your active collection.</p><button class="btn wide" data-act="openPack" ${S.packs===0||complete?'disabled':''}>Open a mystery pack</button>`;
- if(S.packResults)h+=`<div class="pack-results">${S.packResults.map(v=>`<div class="pack-result"><div class="art">${v.emoji}</div><strong>${esc(v.name)}</strong><small>${v.duplicate?'Duplicate':'New discovery'} · ${v.rarity}</small></div>`).join('')}</div><button class="btn ghost wide" data-act="clearResults">Close results</button>`;
- h+=`<div class="rule"></div><div class="row"><div><h3>Duplicate exchange</h3><p class="sub">${S.duplicates} duplicate item${S.duplicates===1?'':'s'} · 3 for 1 pack</p></div><button class="btn tiny alt" data-act="tradeDup" ${S.duplicates<3||complete?'disabled':''}>Trade 3</button></div><div class="rule"></div><div class="row"><div><h3>Buy a mystery pack</h3><p class="sub">50 virtual coins</p></div><button class="btn tiny alt" data-act="buyPack" ${S.coins<PACK_COST||complete?'disabled':''}>Buy pack</button></div></div>`;
- return h+`<div class="card soft"><h3>Completed collection gallery</h3>${S.completed.length?`<p class="sub" style="margin-top:9px">${S.completed.map(c=>'✓ '+esc(c.name)).join(' · ')}</p>`:'<p class="sub" style="margin-top:9px">Your finished projects appear here.</p>'}</div>`;
+
+/* V3.2: the numbers/letters are physically scratched on the ticket itself. */
+function activeSeen(t){return [...t.revealed,...(t.pendingShown||[])];}
+function gameToken(n,t,bonus=false){
+ const isPending=Array.isArray(t.pending)&&t.pending.includes(n),shown=(t.pendingShown||[]).includes(n),seen=t.revealed.includes(n);
+ return `<div class="token-field ${bonus?'bonus':''} ${seen||shown?'seen':''}" data-token-wrap="${n}"><span class="token-text">${seen||isPending?n:'?'}</span>${isPending&&!shown?`<canvas class="token-foil" data-scratch-token="${n}" aria-label="Scratch off ${t.type==='bingo'?'number':'letter'}"></canvas>`:''}</div>`;
+}
+function activeBingoHtml(t){
+ const seen=new Set(activeSeen(t));const block=(numbers,bonus)=>`<div class="stage-calls ${bonus?'bonus':''}">${numbers.map(n=>gameToken(n,t,bonus)).join('')}</div>`;
+ const cards=t.data.cards.map((cells,ci)=>{
+   const hit=i=>i===12||seen.has(cells[i]);let lines=0;
+   for(let r=0;r<5;r++)if([0,1,2,3,4].every(c=>hit(r*5+c)))lines++;
+   for(let c=0;c<5;c++)if([0,1,2,3,4].every(r=>hit(r*5+c)))lines++;
+   return `<div class="stage-bingo-card"><div class="stage-bingo-header"><strong>CARD ${ci+1}</strong><small>${lines} line${lines===1?'':'s'}</small></div><div class="stage-bingo-grid">${'BINGO'.split('').map(l=>`<div class="stage-bingo-letter">${l}</div>`).join('')}${cells.map((n,i)=>`<div ${n!==null?`data-bingo-num="${n}"`:''} class="stage-bingo-cell ${i===12?'free':seen.has(n)?'hit':''}">${i===12?'FREE':n}</div>`).join('')}</div><div class="stage-bingo-prize">LINE ${5+ci*3} COINS · CORNERS 25 · X 60</div></div>`;
+ }).join('');
+ return `<div class="stage-heading">BINGO × SIX</div><div class="stage-caller"><div class="stage-caller-header"><strong>SCRATCH CALLER'S NUMBERS</strong><small>${activeSeen(t).length} / 29</small></div>${block(t.data.source.slice(0,24),false)}<div class="stage-caller-header" style="margin-top:6px"><strong>BONUS NUMBERS</strong><small>last round</small></div>${block(t.data.source.slice(24),true)}</div><div class="stage-bingo-six">${cards}</div>`;
+}
+function activeCrosswordHtml(t){
+ const seen=new Set(activeSeen(t));
+ const grids=t.data.boards.map((b,i)=>{
+   const found=new Set();for(const w of completedWords(b,seen))for(let k=0;k<w.word.length;k++)found.add(`${w.r+(w.dir==='down'?k:0)},${w.c+(w.dir==='across'?k:0)}`);
+   return `<div class="stage-cross-paper"><strong>GAME ${i+1} · ${completedWords(b,seen).length} WORDS</strong><div class="stage-cross-grid ${i?'secondary':''}" style="grid-template-columns:repeat(${b.grid.length},minmax(0,1fr))">${b.grid.map((row,r)=>row.map((letter,c)=>!letter?'<div class="crosscell blank"></div>':`<div data-cross-letter="${letter}" class="crosscell ${found.has(`${r},${c}`)?'found':seen.has(letter)?'called':''}">${letter}</div>`).join('')).join('')}</div></div>`;
+ }).join('');
+ const bonus=Array.from(t.data.bonusWord).every(l=>seen.has(l));
+ return `<div class="stage-heading">CROSSWORD SCRATCHER</div><div class="stage-cross-bank"><div class="stage-caller-header"><strong>SCRATCH YOUR 20 LETTERS</strong><small>${seen.size} / 20</small></div><div class="stage-letter-grid">${t.data.source.map(l=>gameToken(l,t)).join('')}</div></div><div class="stage-cross-columns">${grids}</div><div class="stage-cross-bonus"><strong>${esc(t.data.bonusWord)}</strong><small>${bonus?'BONUS WORD COMPLETE!':'BONUS WORD · +8 COINS'}</small></div>`;
+}
+function playHtml(t){
+ const status=t.pending?`Scratch ${t.type==='bingo'?'each new caller number':'the four new letters'} · ${(t.pendingShown||[]).length} of ${t.pending.length} revealed`:
+  notice||`${t.round} of 5 rounds played · ${t.type==='bingo'?bingoOutcomes(t).lines+' winning lines':crossOutcomes(t).total+' completed words'}`;
+ const action=t.pending?`<button class="btn ghost" data-act="finishScratch">Reveal all</button>`:`<button class="btn" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free round':'Scratch next round · 10 coins'}</button>`;
+ return `<div class="live-play"><div class="live-play-head"><strong>${TYPES[t.type].icon} ${TYPES[t.type].label} scratch ticket</strong><span class="pill">Round ${t.round+(t.pending?1:0)} / 5</span></div><div class="game-viewport" id="gameViewport"><div class="game-scaler" id="gameScaler"><div class="game-stage" id="gameStage">${t.type==='bingo'?activeBingoHtml(t):activeCrosswordHtml(t)}<div class="stage-guide">Scratch the silver areas above · Numbers and words mark automatically</div></div></div></div><div class="live-play-footer"><div class="live-play-status" id="playStatus">${esc(status)}</div><div class="live-play-commands">${action}<div class="play-zoom"><button aria-label="Zoom out" data-act="zoom" data-arg="out">−</button><button aria-label="Fit ticket to screen" data-act="zoom" data-arg="fit">FIT</button><button aria-label="Zoom in" data-act="zoom" data-arg="in">+</button></div></div></div></div>`;
+}
+function fitGame(){
+ const vp=document.getElementById('gameViewport'),stage=document.getElementById('gameStage'),scaler=document.getElementById('gameScaler');if(!vp||!stage||!scaler)return;
+ const width=stage.offsetWidth,height=stage.scrollHeight;
+ if(!width||!height||!vp.clientWidth||!vp.clientHeight)return;
+ const fit=Math.min(vp.clientWidth/width,vp.clientHeight/height,1);
+ const scale=Math.min(3,fit*zoomFactor);
+ stage.style.transform=`scale(${scale})`;
+ scaler.style.width=`${width*scale}px`;scaler.style.height=`${height*scale}px`;
+ vp.style.overflow=zoomFactor>1.01?'auto':'hidden';
+ scaler.style.marginLeft=zoomFactor<=1.01?`${Math.max(0,(vp.clientWidth-width*scale)/2)}px`:'0px';
+ scaler.style.marginTop=zoomFactor<=1.01?`${Math.max(0,(vp.clientHeight-height*scale)/2)}px`:'0px';
+}
+function setupInlineScratch(){
+ const t=S.ticket;if(!t?.pending)return;
+ const pending=t.pending;
+ for(const canvas of document.querySelectorAll('canvas[data-scratch-token]')){
+  const token=t.type==='bingo'?Number(canvas.dataset.scratchToken):canvas.dataset.scratchToken;
+  const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(3,window.devicePixelRatio||1);
+  if(w<5||h<5)continue;
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
+  ctx.fillStyle='#c5c9c9';ctx.fillRect(0,0,w,h);
+  for(let j=0;j<16;j++){const x=Math.random()*w,y=Math.random()*h;ctx.fillStyle=j%2?'#ffffff36':'#51565b22';ctx.fillRect(x,y,1.3,1.3)}
+  let down=false,prev=null,complete=false,moves=0;
+  function point(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}}
+  function erase(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(6,w*.23);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
+  function coverage(){const px=ctx.getImageData(0,0,canvas.width,canvas.height).data;let cleared=0,total=0;
+    for(let y=Math.floor(canvas.height*.20);y<canvas.height*.80;y+=3)for(let x=Math.floor(canvas.width*.15);x<canvas.width*.85;x+=3){total++;if(px[(y*canvas.width+x)*4+3]<48)cleared++}
+    return total?cleared/total:0;
+  }
+  function check(){if(complete||coverage()<.70)return;
+    complete=true;down=false;t.pendingShown=t.pendingShown||[];
+    if(!t.pendingShown.includes(token))t.pendingShown.push(token);
+    save();const wrap=canvas.parentElement;canvas.remove();
+    wrap?.classList.add('seen');
+    document.querySelectorAll(t.type==='bingo'?`[data-bingo-num="${token}"]`:`[data-cross-letter="${token}"]`).forEach(el=>el.classList.add(t.type==='bingo'?'hit':'called'));
+    const status=document.getElementById('playStatus');if(status)status.textContent=`${t.pendingShown.length} of ${pending.length} ${t.type==='bingo'?'numbers':'letters'} scratched`;
+    if(t.pendingShown.length===pending.length)handle('finishScratch');
+  }
+  canvas.addEventListener('pointerdown',e=>{down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(!down||complete)return;const p=point(e);erase(prev,p);prev=p;if(++moves%3===0)check();e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointerup',e=>{if(!complete&&down){down=false;check()}e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointercancel',()=>{down=false});
+ }
+}
+function collectionStyle(idx){return ['cards','stickers','museum','medals','postcards','patches'][idx%PROJECTS.length]}
+function collectionSectionName(kind,n){const labels={cards:'Album page',stickers:'Sticker sheet',museum:'Exhibit case',medals:'Display row',postcards:'Travel page',patches:'Fabric panel'};return `${labels[kind]||'Page'} ${n}`}
+function collectionArt(p,position,discovered,style){const [emoji,name]=p.items[position];return `<div class="artifact ${discovered?'':'unknown'}"><span class="position">${String(position+1).padStart(2,'0')}</span><div class="art">${discovered?`<span>${emoji}</span>`:'<span aria-hidden="true"></span>'}</div><div class="name">${discovered?esc(name):'To discover'}</div></div>`}
+function collectionHero(p,idx,archived){const kind=collectionStyle(idx),featured=archived?[0,1,2]:S.owned.slice(0,3);return `<div class="collection-hero"><div class="collection-hero-art" aria-hidden="true">${[0,1,2].map(i=>featured[i]===undefined?`<span class="hero-sample mystery">?</span>`:`<span class="hero-sample">${p.items[featured[i]][0]}</span>`).join('')}</div><div class="collection-hero-caption"><div><div class="collection-hero-title">${esc(p.kind)}</div><div class="collection-hero-sub">${archived?'Completed collection':'Your active collection · Find all 12 pieces'}</div></div><span class="${archived?'archive-tag':'pill'}">${archived?'COMPLETE':`${S.owned.length} / 12`}</span></div></div>`}
+function collectionPages(p,idx,ownedAll){const style=collectionStyle(idx);let h='';for(let group=0;group<3;group++){
+ const positions=[group*4,group*4+1,group*4+2,group*4+3],got=positions.filter(i=>ownedAll.includes(i)).length;
+ h+=`<section class="collection-page" aria-label="${collectionSectionName(style,group+1)}"><div class="collection-page-head"><strong>${collectionSectionName(style,group+1)}</strong>${got===4?'<span class="complete-flag">✓ Complete</span>':`<small>${got} of 4 found</small>`}</div><div class="artifact-grid">${positions.map(i=>collectionArt(p,i,ownedAll.includes(i),style)).join('')}</div></section>`;
+ }return h;
+}
+function archiveHtml(){const saved=S.completed.find(c=>c.index===archiveOpen);if(!saved){archiveOpen=null;return '';}const p=PROJECTS[archiveOpen%PROJECTS.length],kind=collectionStyle(archiveOpen);return `<div class="card collection-shell kind-${kind}"><button class="btn tiny ghost" data-act="closeArchive">← Back to collections</button><div class="kicker" style="margin-top:15px">Completed project ${archiveOpen+1}</div><h2 style="margin-bottom:12px">${p.icon} ${esc(saved.name)}</h2>${collectionHero(p,archiveOpen,true)}<div class="callout good" style="margin:10px 0">✓ All 12 discoveries collected${saved.completedAt?` · ${new Date(saved.completedAt).toLocaleDateString()}`:''}. This project stays in your gallery.</div>${collectionPages(p,archiveOpen,p.items.map((_,i)=>i))}</div>`}
+function galleryHtml(){const gallery=S.completed.slice().reverse();return `<div class="card soft"><div class="gallery-head"><div><div class="kicker">Your finished projects</div><h2>Completed gallery</h2></div><span class="pill">${S.completed.length} finished</span></div>${gallery.length?`<p class="sub" style="margin-top:8px">Tap a completed cover to revisit every piece you collected.</p><div class="gallery-grid">${gallery.map(c=>{const p=PROJECTS[c.index%PROJECTS.length],kind=collectionStyle(c.index);return `<button class="gallery-tile kind-${kind}" data-act="openArchive" data-arg="${c.index}" aria-label="View completed ${esc(c.name)}"><div class="gallery-art" aria-hidden="true">${p.items.slice(0,3).map(item=>`<span>${item[0]}</span>`).join('')}</div><div class="gallery-text"><em>✓ COMPLETED</em><strong>${esc(c.name)}</strong><small>${esc(p.kind)} · 12 of 12${c.completedAt?` · ${new Date(c.completedAt).toLocaleDateString()}`:''}</small></div></button>`}).join('')}</div>`:'<div class="callout" style="margin-top:14px">Your first completed project will appear here as its own display. You can revisit it anytime.</div>'}</div>`}
+function collectHtml(){if(archiveOpen!==null)return archiveHtml();const p=project(),kind=collectionStyle(S.projectIndex),complete=S.owned.length===p.items.length;
+ const remaining=Array.from({length:3},(_,j)=>{const n=[j*4,j*4+1,j*4+2,j*4+3].filter(i=>S.owned.includes(i)).length;return {j,n}}).find(x=>x.n<4);
+ let h=`<div class="card collection-shell kind-${kind}"><div class="sectionline"><div><div class="kicker">Current project · ${S.projectIndex+1}</div><h2>${p.icon} ${esc(projectTitle())}</h2></div><span class="pill">${S.owned.length} / 12</span></div>${collectionHero(p,S.projectIndex,false)}<div class="collection-meter"><div style="width:${S.owned.length/12*100}%"></div></div><div class="collection-milestone"><span>${complete?'All three sections complete!':`Next: ${collectionSectionName(kind,remaining.j+1)} · ${remaining.n}/4`}</span><strong>${Math.floor(S.owned.length/12*100)}% collected</strong></div>${collectionPages(p,S.projectIndex,S.owned)}`;
+ h+=complete?`<div class="callout good" style="margin:12px 0">Your complete collection is ready for the gallery. Finish it to start a different kind of project.</div><button class="btn wide" data-act="nextProject">Add to gallery · Start next collection</button>`:'<div class="callout" style="margin-top:14px">Discoveries are random. Packs can contain new pieces or duplicates, but there are no deadlines or expiration dates.</div>';h+='</div>';
+ h+=`<div class="card"><div class="sectionline"><div><div class="kicker">Mystery pack vault</div><h2>Sealed mystery packs</h2></div><span class="pill">${S.packs} saved</span></div><div class="pack-vault-hero"><div class="sealed-pack"><span class="seal-icon">📦</span><small>2 REVEALS</small></div><div class="pack-vault-copy"><strong>${S.packs} unopened pack${S.packs===1?'':'s'}</strong><small>Open whenever you choose to reveal two collectibles from your current project.</small></div></div><button class="btn wide" data-act="openPack" ${S.packs===0||complete?'disabled':''}>Open a mystery pack</button>`;
+ if(S.packResults)h+=`<div class="label" style="margin-top:18px">Your latest discoveries</div><div class="reveal-artifacts">${S.packResults.map(v=>`<div class="reveal-artifact ${v.duplicate?'is-duplicate':''}"><div class="reveal-emblem">${v.emoji}</div><span class="discovery-flag">${v.duplicate?'DUPLICATE':'NEW FIND'}</span><strong>${esc(v.name)}</strong><small>${esc(v.rarity)}</small></div>`).join('')}</div><button class="btn ghost wide" data-act="clearResults">Close reveals</button>`;
+ h+=`<div class="duplicate-pouch"><div class="duplicate-head"><div><h3>Duplicate exchange</h3><p class="sub">Save three extras to earn another pack.</p></div><span class="pill">${S.duplicates} extras</span></div><div class="duplicate-tray" aria-label="${S.duplicates%3} of 3 duplicates toward an additional pack">${[0,1,2].map(i=>`<div class="duplicate-slot ${i<Math.min(S.duplicates,3)?'filled':''}">${i<Math.min(S.duplicates,3)?'▧':'+'}</div>`).join('')}</div><div class="duplicate-foot"><span class="sub">${S.duplicates>=3?`${Math.floor(S.duplicates/3)} exchange${Math.floor(S.duplicates/3)===1?'':'s'} ready`:`${3-S.duplicates} more to trade`} · extras carry over</span><button class="btn tiny alt" data-act="tradeDup" ${S.duplicates<3||complete?'disabled':''}>Trade 3</button></div></div><div class="row"><div><h3>Buy a mystery pack</h3><p class="sub">50 virtual coins · two random pieces</p></div><button class="btn tiny alt" data-act="buyPack" ${S.coins<PACK_COST||complete?'disabled':''}>Buy pack</button></div></div>`;
+ return h+galleryHtml();
 }
 function walletHtml(){return `<div class="card"><div class="sectionline"><div><div class="kicker">Test the economy</div><h2>Walk → coins → scratch</h2></div></div><div class="callout gold">This version uses simulated steps, not real Apple Health data yet.</div><div class="kpi-row"><div class="kpi"><strong>${Math.floor(S.bank/RATE)}</strong><small>Exchange units</small></div><div class="kpi"><strong>${S.freeRounds}</strong><small>Free rounds</small></div><div class="kpi"><strong>${S.freeTickets}</strong><small>Free tickets</small></div></div><p class="label">Add pretend walking</p><div class="row" style="margin:10px 0 18px;justify-content:stretch"><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="547">+547 steps</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="1000">+1,000</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="6000">+6,000</button></div><div class="row" style="gap:8px"><button class="btn" style="flex:1" data-act="exchange" ${S.bank<RATE?'disabled':''}>Cash 547 → 10 coins</button><button class="btn alt" style="flex:1" data-act="exchangeAll" ${S.bank<RATE?'disabled':''}>Cash all available</button></div><p class="note" style="margin-top:10px">Leftover steps and coins carry over indefinitely. Redeemed steps cannot be used twice.</p></div><div class="card"><h3>Your game statistics</h3><div class="kpi-row"><div class="kpi"><strong>${S.stats.tickets}</strong><small>Tickets bought</small></div><div class="kpi"><strong>${S.stats.rounds}</strong><small>Rounds scratched</small></div><div class="kpi"><strong>${S.stats.projects}</strong><small>Projects finished</small></div></div><div class="row"><span class="sub">Coins from walking</span><strong>${S.stats.walkCoins}</strong></div><div class="rule"></div><div class="row"><span class="sub">Coins won in scratchers</span><strong>${S.stats.winCoins}</strong></div></div><div class="card soft"><h3>Save or reset</h3><p class="sub" style="margin:8px 0 12px">Progress is stored in this browser. Download a backup before clearing website data or moving to another browser.</p><div class="row"><button class="btn tiny alt" data-act="export">Export save</button><button class="btn tiny alt" data-act="import">Import save</button><button class="btn tiny ghost" data-act="reset">Reset demo</button></div><input type="file" id="restoreFile" accept="application/json,.json" style="display:none" aria-label="Choose saved game file"></div>`}
-function render(){const root=document.getElementById('app');root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">PLAYABLE DEMO V2</div></div><div class="wallet"><div class="stat"><small>👟 Step bank</small><strong>${S.bank.toLocaleString()}</strong><em>steps</em></div><div class="stat"><small>🪙 Virtual wallet</small><strong>${S.coins.toLocaleString()}</strong><em>coins</em></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 2 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
- for(let el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
+
+function render(){
+ const root=document.getElementById('app'),playing=!!(view==='scratch'&&S.ticket&&!S.ticket.finished);
+ root.classList.toggle('playing',playing);
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">DEMO V3.2</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.2 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
- if(S.ticket?.pending&&view==='scratch')setupScratch();
+ if(playing){fitGame();setupInlineScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
 }
-function setupScratch(){const canvas=document.getElementById('foil');if(!canvas)return;const rect=canvas.getBoundingClientRect();if(rect.width<10)return;
- const w=rect.width,h=rect.height,dpr=Math.min(3,window.devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+window.addEventListener('resize',()=>fitGame());
+function setupScratch(){
+ const canvas=document.getElementById('foil');if(!canvas)return;
+ const rect=canvas.getBoundingClientRect();if(rect.width<10)return;
+ const w=rect.width,h=rect.height,dpr=Math.min(3,window.devicePixelRatio||1);
+ canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
- const silver=ctx.createLinearGradient(0,0,w,h);silver.addColorStop(0,'#b0b5b1');silver.addColorStop(.3,'#e2e4de');silver.addColorStop(.6,'#a1aaa7');silver.addColorStop(1,'#c5ccc7');ctx.fillStyle=silver;ctx.fillRect(0,0,w,h);
- // Matte ticket foil texture, intentionally static and subtle.
- for(let i=0;i<Math.min(2000,Math.floor(w*h/45));i++){const x=Math.random()*w,y=Math.random()*h;ctx.fillStyle=i%2?'rgba(255,255,255,.18)':'rgba(62,73,69,.10)';ctx.fillRect(x,y,1.2+Math.random()*2,.5+Math.random())}
- ctx.fillStyle='#405053';ctx.font='800 21px ui-rounded,system-ui';ctx.textAlign='center';ctx.fillText('SCRATCH HERE',w/2,h/2-5);ctx.font='600 12px ui-rounded,system-ui';ctx.fillText('rub away the silver covering',w/2,h/2+19);
- let down=false,prev=null,moves=0,done=false;
- function point(e){let b=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(w,e.clientX-b.left)),y:Math.max(0,Math.min(h,e.clientY-b.top))}}
- function stroke(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=21;
-  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.beginPath();ctx.arc(b.x,b.y,10.5,0,Math.PI*2);ctx.fill();
-  // fine irregular edges make a real rubbed-off look, without animated effects
-  const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy),n=Math.min(14,Math.floor(length/5));
-  for(let i=0;i<n;i++){let f=(i+1)/(n+1),x=a.x+dx*f,y=a.y+dy*f,offset=(i%2?1:-1)*(10+Math.random()*4);ctx.beginPath();ctx.arc(x+(-dy/(length||1))*offset,y+(dx/(length||1))*offset,1.5+Math.random()*2.5,0,Math.PI*2);ctx.fill()}
-  ctx.restore();}
- function proportion(){let pix=ctx.getImageData(0,0,canvas.width,canvas.height).data,clear=0,total=0,step=Math.max(1,Math.round(dpr*7)),ww=canvas.width,hh=canvas.height;
- for(let y=step>>1;y<hh;y+=step)for(let x=step>>1;x<ww;x+=step){total++;if(pix[(y*ww+x)*4+3]<24)clear++}return total?clear/total:0}
- function check(){if(done)return;if(proportion()>=.97){done=true;down=false;handle('finishScratch')}}
- canvas.addEventListener('pointerdown',e=>{if(done)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}stroke(prev,prev);e.preventDefault()},{passive:false});
- canvas.addEventListener('pointermove',e=>{if(!down||done)return;let p=point(e);stroke(prev,p);prev=p;moves++;if(moves%11===0)check();e.preventDefault()},{passive:false});
- canvas.addEventListener('pointerup',e=>{if(down&&!done){down=false;prev=null;check()}e.preventDefault()},{passive:false});canvas.addEventListener('pointercancel',()=>{down=false;prev=null});
+ // Same clean V1 matte-silver foil, with a few tiny static flecks so erasing feels physical.
+ ctx.fillStyle='#c7cbcb';ctx.fillRect(0,0,w,h);
+ for(let i=0;i<Math.min(1250,Math.floor(w*h/90));i++){
+  const x=Math.random()*w,y=Math.random()*h;
+  ctx.fillStyle=i%2?'rgba(255,255,255,.10)':'rgba(70,77,88,.07)';
+  ctx.fillRect(x,y,1+Math.random()*1.5,1+Math.random()*1.5);
+ }
+ ctx.fillStyle='#3f4456';ctx.font='900 21px ui-rounded,system-ui';ctx.textAlign='center';
+ ctx.fillText('SCRATCH ME',w/2,h/2-3);
+ ctx.font='600 12px ui-rounded,system-ui';
+ ctx.fillText('rub with your finger to reveal',w/2,h/2+21);
+ const tiles=[...document.querySelectorAll('.scratch-tray .scratch-item')];
+ let down=false,prev=null,done=false,moves=0;
+ function point(e){const r=canvas.getBoundingClientRect();return {x:Math.max(0,Math.min(w,e.clientX-r.left)),y:Math.max(0,Math.min(h,e.clientY-r.top))}}
+ function stroke(a,b){
+  ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=23;
+  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  ctx.beginPath();ctx.arc(b.x,b.y,11.5,0,Math.PI*2);ctx.fill();
+  // Tiny irregular foil edges. No animation, vibration or effects.
+  const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy),n=Math.min(18,Math.floor(length/5));
+  for(let i=0;i<n;i++){
+   const f=(i+1)/(n+1),x=a.x+dx*f,y=a.y+dy*f,offset=(i%2?1:-1)*(11+Math.random()*2);
+   ctx.beginPath();ctx.arc(x+(-dy/(length||1))*offset,y+(dx/(length||1))*offset,1+Math.random()*1.8,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+ }
+ // Instead of requiring 97% of the ENTIRE foil, require each value's central
+ // legibility area to have been uncovered. One missed number blocks auto-finish.
+ function itemCoverage(item){
+  const r=item.getBoundingClientRect(),c=canvas.getBoundingClientRect();
+  const x0=Math.max(0,Math.floor((r.left-c.left+r.width*.21)*dpr));
+  const x1=Math.min(canvas.width,Math.ceil((r.left-c.left+r.width*.79)*dpr));
+  const y0=Math.max(0,Math.floor((r.top-c.top+r.height*.25)*dpr));
+  const y1=Math.min(canvas.height,Math.ceil((r.top-c.top+r.height*.75)*dpr));
+  if(x1<=x0||y1<=y0)return 0;
+  const image=ctx.getImageData(x0,y0,x1-x0,y1-y0);
+  let cleared=0,total=0;
+  const stride=Math.max(1,Math.round(dpr*2));
+  for(let y=0;y<image.height;y+=stride)for(let x=0;x<image.width;x+=stride){
+   total++;if(image.data[(y*image.width+x)*4+3]<32)cleared++;
+  }
+  return total?cleared/total:0;
+ }
+ function check(){
+  if(done||!tiles.length)return;
+  if(tiles.every(tile=>itemCoverage(tile)>=.83)){
+   done=true;down=false;handle('finishScratch');
+  }
+ }
+ canvas.addEventListener('pointerdown',e=>{
+  if(done)return;down=true;prev=point(e);
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  stroke(prev,prev);e.preventDefault();
+ },{passive:false});
+ canvas.addEventListener('pointermove',e=>{
+  if(!down||done)return;
+  const p=point(e);stroke(prev,p);prev=p;moves++;
+  if(moves%8===0)check();e.preventDefault();
+ },{passive:false});
+ canvas.addEventListener('pointerup',e=>{
+  if(down&&!done){down=false;prev=null;check()}
+  e.preventDefault();
+ },{passive:false});
+ canvas.addEventListener('pointercancel',()=>{down=false;prev=null});
 }
 render();
 })();
