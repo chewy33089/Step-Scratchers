@@ -635,6 +635,53 @@ function expectedMarkKeys(t){
 }
 function markCount(t){const expected=expectedMarkKeys(t),mark=new Set(t?.marks||[]);return {total:expected.length,done:expected.filter(k=>mark.has(k)).length,remaining:expected.filter(k=>!mark.has(k)).length};}
 function manualCompletedWords(board,t,bi){const marks=new Set(t.marks||[]);return board.words.filter(w=>[...w.word].every((_,i)=>marks.has(markKeyC(bi,w.r+(w.dir==='down'?i:0),w.c+(w.dir==='across'?i:0)))))}
+// V3.5.3: Update the play controls without rebuilding scratch canvases or moving the ticket.
+// A full render on the last call used to reset the viewport, and also discarded
+// partially erased foil on other numbers. Keep the game-stage DOM mounted instead.
+function refreshPlayState(t){
+ const counter=document.getElementById('calledCounter');
+ if(counter)counter.textContent=`${activeSeen(t).length} / ${t.type==='bingo'?29:20}`;
+ const badge=document.querySelector('.live-play-head .pill');
+ if(badge)badge.textContent=`Round ${t.round+(t.pending?1:0)} / 5`;
+ const left=markCount(t).remaining;
+ const status=document.getElementById('playStatus');
+ if(status)status.textContent=t.pending
+  ?`Scratch new ${t.type==='bingo'?'caller numbers':'letters'} · ${(t.pendingShown||[]).length} of ${t.pending.length} revealed`
+  :left?`Find and scratch ${left} matching space${left===1?'':'s'} to continue`
+  :t.round>=5?'All matches found! Finishing ticket…':'All matches found! Next round is ready.';
+ const controls=document.querySelector('.live-play-commands');
+ if(controls){
+  controls.innerHTML=t.pending
+   ?'<button class="btn ghost" data-act="finishScratch">Reveal caller numbers / letters</button>'
+   :left?`<button class="btn" disabled>${left} matching spaces left</button>`
+   :t.round>=5?'<button class="btn" disabled>Finishing ticket…</button>'
+   :`<button class="btn" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free round':'Scratch next round · 10 coins'}</button>`;
+  controls.querySelectorAll('[data-act]').forEach(el=>el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg)));
+ }
+ // Reflect the player's marks in line/word counts without hinting at unmatched spaces.
+ if(t.type==='bingo'){
+  document.querySelectorAll('.stage-bingo-card').forEach((el,ci)=>{
+   const card=t.data.cards[ci],marks=new Set(t.marks||[]);
+   const hit=i=>i===12||marks.has(markKeyB(ci,i));let lines=0;
+   for(let r=0;r<5;r++)if([0,1,2,3,4].every(c=>hit(r*5+c)))lines++;
+   for(let c=0;c<5;c++)if([0,1,2,3,4].every(r=>hit(r*5+c)))lines++;
+   const small=el.querySelector('.stage-bingo-header small');if(small)small.textContent=`${lines} line${lines===1?'':'s'}`;
+  });
+ }else{
+  document.querySelectorAll('.stage-cross-paper').forEach((el,bi)=>{
+   const done=manualCompletedWords(t.data.boards[bi],t,bi);
+   const title=el.querySelector('strong');if(title)title.textContent=`GAME ${bi+1} · ${done.length} WORDS`;
+   const found=new Set();
+   for(const w of done)for(let k=0;k<w.word.length;k++)found.add(`${w.r+(w.dir==='down'?k:0)},${w.c+(w.dir==='across'?k:0)}`);
+   const board=t.data.boards[bi];let idx=0;
+   for(let r=0;r<board.grid.length;r++)for(let c=0;c<board.grid[r].length;c++,idx++){
+    if(found.has(`${r},${c}`))el.querySelectorAll('.crosscell')[idx]?.classList.add('found');
+   }
+  });
+  const bonusDone=Array.from(t.data.bonusWord).every((_,i)=>(t.marks||[]).includes(markKeyBonus(i)));
+  const bonusLabel=document.querySelector('.stage-cross-bonus small');if(bonusLabel)bonusLabel.textContent=bonusDone?'BONUS COMPLETE!':'SCRATCH MATCHES · +8 COINS';
+ }
+}
 function settleTicket(){
  const t=S.ticket;if(!t||t.finished||t.round<5||t.pending||markCount(t).remaining)return;
  t.finished=true;t.prize=getPrize(t);S.coins+=t.prize;S.stats.winCoins+=t.prize;
@@ -690,7 +737,18 @@ function handle(action,arg){
   if(Math.random()<.045){S.packs++;messages.push('Bonus: one mystery pack!')}
   const remaining=markCount(t).remaining;
   messages.push(`Now scratch ${remaining} matching space${remaining===1?'':'s'} on the card.`);
-  notice=messages.join('  ');save();render();
+  notice=messages.join('  ');save();
+  // Skip full render: it snapped the card back to the top as soon as the final call cleared.
+  // This also preserves any partial scratches the player made on matching spaces.
+  if(view==='scratch'&&document.getElementById('gameViewport')){
+   const shown=new Set(t.revealed);
+   document.querySelectorAll('canvas[data-scratch-token]').forEach(canvas=>{
+    const value=t.type==='bingo'?Number(canvas.dataset.scratchToken):canvas.dataset.scratchToken;
+    if(shown.has(value)){canvas.parentElement?.classList.add('seen');canvas.remove()}
+   });
+   for(const token of t.lastReveal)activateBoardMatches(token,t);
+   refreshPlayState(t);
+  }else render();
   if(t.round>=5&&remaining===0)settleTicket();
   return;
  }
@@ -918,11 +976,13 @@ function walletHtml(){return healthSyncHtml()+`<div class="card"><div class="sec
 
 function render(){
  const root=document.getElementById('app'),playing=!!(view==='scratch'&&S.ticket&&!S.ticket.finished);
+ const previousViewport=document.getElementById('gameViewport');
+ const previousPosition=playing&&previousViewport?{left:previousViewport.scrollLeft,top:previousViewport.scrollTop}:null;
  root.classList.toggle('playing',playing);
- root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.2 · ONE-FINGER PAN</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.2 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.3 · STEADY SCRATCH</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.3 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
- if(playing){fitGame();setupPinchZoom();setupOneFingerPan();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
+ if(playing){fitGame();if(previousPosition){const vp=document.getElementById('gameViewport');vp.scrollLeft=previousPosition.left;vp.scrollTop=previousPosition.top;}setupPinchZoom();setupOneFingerPan();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
 }
 window.addEventListener('resize',()=>fitGame());
 function setupScratch(){
@@ -1025,7 +1085,8 @@ function setupBoardScratch(){
     const status=document.getElementById('playStatus');if(status)status.textContent=t.pending?`${(t.pendingShown||[]).length}/${t.pending.length} calls revealed · ${left} matches left`:left?`Scratch ${left} more matching spot${left===1?'':'s'} on your card`:'All matches found!';
     // Do not redraw the ticket while calls are still being scratched: that would erase
     // partial scratch marks on other numbers. The next completed call/round updates it.
-    if(left===0&&!t.pending){if(t.round>=5)return settleTicket();render()}
+    refreshPlayState(t);
+    if(left===0&&!t.pending&&t.round>=5)return settleTicket();
   }
   canvas.addEventListener('pointerdown',e=>{if(panMode||pinching||complete)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
   canvas.addEventListener('pointermove',e=>{if(panMode||!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;if(moves%3===0)check();e.preventDefault()},{passive:false});
