@@ -439,6 +439,16 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 .live-play-commands .btn[disabled] {opacity:.65;color:#f7f7f5;background:#596273;}
 
 
+/* V3.5.2: one-finger pan on the card background; Pan mode makes every spot draggable. */
+.game-viewport {touch-action:none!important;}
+.gesture-hint {display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px;margin:0 0 4px;}
+.gesture-hint .play-hint {flex:1;min-width:0;margin:0;line-height:1.25;font-size:10px;}
+.pan-toggle {flex-shrink:0;border-radius:8px;min-height:29px;padding:4px 9px;border:1px solid #8ea0b4;background:#35475a;color:#f7f8f2;font-size:11px;font-weight:800;touch-action:manipulation;}
+.pan-toggle.on {border-color:#9de9d7;background:#355d56;color:#edfff8;}
+.pan-toggle:focus-visible {outline:2px solid var(--gold);outline-offset:2px;}
+.game-viewport.pan-active {cursor:grab;}
+.game-viewport.pan-active:active {cursor:grabbing;}
+
 /* V3.4: no match hints whatsoever. The board looks identical until YOU scratch a called value. */
 .stage-bingo-cell.ready,.stage-cross-grid .crosscell.ready,.stage-cross-bonus .bonus-char.ready {
   background:inherit; border-color:inherit; color:inherit;
@@ -446,6 +456,14 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 .stage-bingo-cell.ready{background:#304759!important;border-color:#7e9aaa!important;color:#fff9ed!important;}
 .stage-cross-grid .crosscell.ready{background:#3b4d63!important;color:#f7fcf9!important;border-color:#8196a6!important;}
 .stage-cross-bonus .bonus-char.ready{background:transparent!important;color:#f2dbab!important;}
+
+.health-connect { background:linear-gradient(145deg,#273c40,#2c344f);border-color:#5c8584; }
+.health-kicker { display:inline-flex;gap:6px;align-items:center;color:#b6f2d7;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px; }
+.health-summary { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0; }
+.health-figure { background:#1c3036;border:1px solid #567d80;border-radius:12px;padding:12px; }
+.health-figure strong { font-size:24px;display:block;color:#f7faff; }
+.health-figure small { color:#bce4dd;font-size:11px;line-height:1.45;display:block;margin-top:4px; }
+.health-sync-status { border-radius:10px;border:1px solid #5d8477;padding:10px 12px;background:#24433a;color:#e0ffe8;font-size:12px;line-height:1.4;margin:10px 0; }
 </style>
 </head>
 <body><div id="app"><div class="card"><h2>Step Scratchers</h2><p class="sub" style="margin-top:12px">This file preview cannot run the game. Open the published website in Chrome to play.</p></div></div>
@@ -464,10 +482,59 @@ const PROJECTS=[
  {title:'The Patch Collection',kind:'Patch Board',icon:'🧵',items:[['🚀','Rocket'],['🪐','Planet'],['🧋','Bubble Tea'],['🎸','Guitar'],['🎈','Balloon'],['🎨','Paintbrush'],['🎧','Headphones'],['🛼','Skates'],['🎯','Target'],['🪁','Kite'],['🧲','Magnet'],['🪩','Disco Ball']]}
 ];
 const WORDS=['TREASURE','SPARK','LUCK','BONUS','COIN','GOLD','CARD','STAR','KEY','GEM','CROWN','PEARL','WALK','PRIZE','WIN','TICKET','GARDEN','SECRET','LUCKY','MYSTERY','DAWN','OCEAN','CLOUD','LIGHT','FLOWER','SHINE','DREAM','SMILE','SILVER','BRIGHT','RIBBON','HEART','GIFT','PEACE','STONE','SHELL','APE','SEA','RUN','HAT','TREE','NOTE','RING','TALL','WEAR','DICE','BIRD','TIDE','OIL','ICE','SAND','JAM','MAP','TEN','CAT','BLUE','FIVE','TWO','NEW','OWL','MOON','RAIN','TOY','BELL','FAN','GLOW','NEST','HOME','RIVER','ROSE','WIND','ECHO','NICE','FIRE','TINY','GLOW','READ','LAMP'];
-let view='scratch',selected='bingo',notice='',archiveOpen=null,zoomFactor=1,S=load();
+let view='scratch',selected='bingo',notice='',archiveOpen=null,zoomFactor=1,panMode=false,S=load(),healthPreview=null,healthSyncMessage='';
 function initial(){return {version:1,bank:6000,coins:0,freeRounds:0,freeTickets:0,ticket:null,projectIndex:0,owned:[],duplicates:0,packs:0,packResults:null,completed:[],stats:{tickets:0,rounds:0,walkCoins:0,winCoins:0,projects:0},history:[]}}
+function freshRealGame(){const start=initial();start.bank=0;start.liveMode=true;start.healthDays={};start.lastHealthDay=null;start.lastHealthTotal=0;start.rulesVersion=2;return start;}
 function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1&&Number.isFinite(x.bank)&&Number.isFinite(x.coins))return x;}catch(e){}return initial()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+// Apple Health is read by an iPhone Shortcut, never by this website directly.
+// The Shortcut opens the app with #sssteps=<today-total>. URL fragments stay
+// client-side; GitHub Pages never receives them as part of the HTTP request.
+function localDay(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function acceptHealthTotal(total,day){
+ if(!S.liveMode)return false;
+ if(!S.healthDays||typeof S.healthDays!=='object')S.healthDays={};
+ const previous=Math.max(0,Math.trunc(Number(S.healthDays[day])||0));
+ const delta=Math.max(0,total-previous);
+ if(delta)S.bank+=delta;
+ S.healthDays[day]=Math.max(total,previous);
+ S.lastHealthDay=day;S.lastHealthTotal=total;
+ const dates=Object.keys(S.healthDays).sort();if(dates.length>90)for(const old of dates.slice(0,-90))delete S.healthDays[old];
+ healthSyncMessage=delta?`Added ${delta.toLocaleString()} new steps from Apple Health.`:'Already up to date — no steps counted twice.';
+ save();return true;
+}
+function checkHealthLink(){
+ const hash=window.location.hash||'';
+ const match=/^#sssteps=([0-9,]{1,11})$/.exec(hash);
+ if(!match)return;
+ // Remove count from visible address and browser history immediately.
+ try{history.replaceState(null,'',window.location.pathname+window.location.search);}catch(e){}
+ const count=Number(match[1].replaceAll(',',''));
+ if(!Number.isSafeInteger(count)||count<0||count>150000)return;
+ const day=localDay();
+ if(S.liveMode){acceptHealthTotal(count,day);view='wallet';}
+ else{healthPreview={count,day};view='wallet';}
+}
+function healthSyncHtml(){
+ const preview=healthPreview;
+ const live=!!S.liveMode;
+ const title=live?'Apple Health step syncing':'Connect your Apple Watch steps';
+ let h=`<div class="card health-connect"><div class="health-kicker">⌚ Apple Health · local step sync</div><h2>${title}</h2>`;
+ if(live){
+  h+=`<p class="sub" style="margin-top:8px">Use your Step Scratchers Sync shortcut whenever you want to update your real steps. You can run it more than once a day without double counting.</p>`;
+  h+=`<div class="health-summary"><div class="health-figure"><strong>${Number(S.lastHealthTotal||0).toLocaleString()}</strong><small>Last Health total today${S.lastHealthDay===localDay()?'':'/on last sync day'}</small></div><div class="health-figure"><strong>${S.lastHealthDay===localDay()?localDay():'—'}</strong><small>${S.lastHealthDay===localDay()?'Last synced day':'Open the Shortcut to sync today'}</small></div></div>`;
+  if(healthSyncMessage)h+=`<div class="health-sync-status" role="status">${esc(healthSyncMessage)}</div>`;
+ }else if(preview){
+  h+=`<p class="sub" style="margin-top:8px">The Shortcut supplied <strong>${preview.count.toLocaleString()} steps</strong> for today. Check that this matches Apple Health before enabling.</p>`;
+  h+=`<div class="callout gold" style="margin:12px 0">Start completely fresh: all demo steps, coins, tickets, free rounds, packs, collections, and statistics will be erased. The new bank will contain <strong>only today's real Apple Health steps</strong> plus steps from future syncs. You can earn coins from these real steps.</div>`;
+  h+=`<button class="btn wide" data-act="activateHealth">Start tracking real steps</button><button style="margin-top:9px" class="btn ghost wide" data-act="dismissHealth">Not yet — continue demo</button>`;
+ }else{
+  h+=`<p class="sub" style="margin-top:8px">Once you create the free iPhone Shortcut, it will send today's step total directly to this browser. Only steps are read; no heart-rate data or GPS. No login required.</p><div class="callout" style="margin-top:12px">First, run the Shortcut and compare its number with the Steps total in Apple Health. You'll choose when to replace the pretend step bank.</div>`;
+ }
+ return h+'</div>';
+}
+
 function rand(n){return Math.floor(Math.random()*n)}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -579,12 +646,29 @@ function settleTicket(){
 }
 function setNotice(m){notice=m;render()}
 function handle(action,arg){
+ if(action==='togglePan'){
+  panMode=!panMode;
+  // Update only the controls: rebuilding the board would erase partially scratched foil.
+  const button=document.querySelector('.pan-toggle'),vp=document.getElementById('gameViewport'),hint=document.querySelector('.gesture-hint .play-hint');
+  if(button){button.classList.toggle('on',panMode);button.setAttribute('aria-pressed',String(panMode));button.textContent=panMode?'✓ Pan ON':'✋ Pan';}
+  vp?.classList.toggle('pan-active',panMode);
+  if(hint)hint.textContent=panMode?'Pan anywhere with one finger. Pinch to zoom.':'Scratch numbers. Drag blank card areas to move; pinch to zoom.';
+  return;
+ }
  if(action==='tab'){view=arg;archiveOpen=null;notice='';zoomFactor=1;return render()}
  if(action==='openArchive'){const idx=Number(arg);if(!S.completed.some(c=>c.index===idx))return;archiveOpen=idx;notice='';return render()}
  if(action==='closeArchive'){archiveOpen=null;return render()}
  if(action==='pick'){selected=arg;return render()}
- if(action==='addSteps'){S.bank+=Number(arg);save();return setNotice(`Added ${Number(arg).toLocaleString()} simulated steps.`)}
- if(action==='exchange'||action==='exchangeAll'){const count=action==='exchange'?1:Math.floor(S.bank/RATE);if(count<1)return;S.bank-=count*RATE;S.coins+=count*COINS_PER_RATE;S.stats.walkCoins+=count*COINS_PER_RATE;save();return setNotice(`Exchanged ${count*RATE} simulated steps for ${count*COINS_PER_RATE} coins.`)}
+ if(action==='activateHealth'){
+  if(!healthPreview||S.liveMode)return;
+  if(!confirm('Start a brand-new game with only real steps? This permanently clears ALL demo progress: coins, tickets, packs, collectibles, bonuses, and history. Your first real bank will use today\'s Apple Health steps.'))return;
+  const value=healthPreview.count,day=healthPreview.day;healthPreview=null;
+  S=freshRealGame();selected='bingo';archiveOpen=null;zoomFactor=1;
+  acceptHealthTotal(value,day);return setNotice('Fresh real-step game started. All simulated rewards have been cleared.');
+ }
+ if(action==='dismissHealth'){healthPreview=null;return render()}
+ if(action==='addSteps'){if(S.liveMode)return;S.bank+=Number(arg);save();return setNotice(`Added ${Number(arg).toLocaleString()} simulated steps.`)}
+ if(action==='exchange'||action==='exchangeAll'){const count=action==='exchange'?1:Math.floor(S.bank/RATE);if(count<1)return;S.bank-=count*RATE;S.coins+=count*COINS_PER_RATE;S.stats.walkCoins+=count*COINS_PER_RATE;save();return setNotice(`Exchanged ${count*RATE} banked steps for ${count*COINS_PER_RATE} coins.`)}
  if(action==='buyTicket'){
   if(S.ticket&&!S.ticket.finished)return setNotice('Finish your current ticket first.');
   if(S.freeTickets>0)S.freeTickets--;else if(S.coins>=TICKET_COST)S.coins-=TICKET_COST;else return setNotice('You need 30 coins for a ticket. Exchange some banked steps.');
@@ -690,7 +774,7 @@ function playHtml(t){
  t.round>=5?`<button class="btn" disabled>Finish scratching your matches</button>`:
  left?`<button class="btn" disabled>${left} matching spaces left</button>`:
  `<button class="btn" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free round':'Scratch next round · 10 coins'}</button>`;
- return `<div class="live-play"><div class="live-play-head"><strong>${TYPES[t.type].icon} ${TYPES[t.type].label} scratch ticket</strong><span class="pill">Round ${t.round+(t.pending?1:0)} / 5</span></div><div class="play-hint">Scratch any call, then scratch its matches whenever you like. No hints. Pinch to zoom.</div><div class="game-viewport" id="gameViewport"><div class="game-scaler" id="gameScaler"><div class="game-stage" id="gameStage">${t.type==='bingo'?activeBingoHtml(t):activeCrosswordHtml(t)}<div class="stage-guide">Your matched spaces must be scratched by hand.</div></div></div></div><div class="live-play-footer"><div class="live-play-status" id="playStatus">${esc(status)}</div><div class="live-play-commands">${action}</div></div></div>`;
+ return `<div class="live-play"><div class="live-play-head"><strong>${TYPES[t.type].icon} ${TYPES[t.type].label} scratch ticket</strong><span class="pill">Round ${t.round+(t.pending?1:0)} / 5</span></div><div class="gesture-hint"><div class="play-hint">${panMode?'Pan anywhere with one finger. Pinch to zoom.':'Scratch the numbers. Drag blank card areas to move; pinch to zoom.'}</div><button type="button" class="pan-toggle ${panMode?'on':''}" aria-pressed="${panMode}" data-act="togglePan">${panMode?'✓ Pan ON':'✋ Pan'}</button></div><div class="game-viewport ${panMode?'pan-active':''}" id="gameViewport"><div class="game-scaler" id="gameScaler"><div class="game-stage" id="gameStage">${t.type==='bingo'?activeBingoHtml(t):activeCrosswordHtml(t)}<div class="stage-guide">Your matched spaces must be scratched by hand.</div></div></div></div><div class="live-play-footer"><div class="live-play-status" id="playStatus">${esc(status)}</div><div class="live-play-commands">${action}</div></div></div>`;
 }
 function fitGame(anchor){
  const vp=document.getElementById('gameViewport'),stage=document.getElementById('gameStage'),scaler=document.getElementById('gameScaler');if(!vp||!stage||!scaler)return;
@@ -733,6 +817,32 @@ function setupPinchZoom(){
  },{passive:false,capture:true});
  const stop=e=>{if(e.touches.length<2)pinching=false};
  vp.addEventListener('touchend',stop,{capture:true});vp.addEventListener('touchcancel',stop,{capture:true});
+}
+
+function setupOneFingerPan(){
+ const vp=document.getElementById('gameViewport');if(!vp)return;
+ let drag=null;
+ const isScratchSurface=e=>!!e.target.closest?.('canvas.token-foil, canvas.board-foil');
+ vp.addEventListener('pointerdown',e=>{
+   // Scratch mode: direct touch on foil scratches; empty card space pans.
+   // Pan mode: even foil is draggable, never scratchable.
+   if(e.pointerType!=='touch'&&e.pointerType!=='pen'&&e.pointerType!=='mouse')return;
+   if(!panMode&&isScratchSurface(e))return;
+   if(drag)return;
+   drag={id:e.pointerId,x:e.clientX,y:e.clientY};
+   try{vp.setPointerCapture(e.pointerId)}catch(_){}
+ },{capture:true,passive:false});
+ vp.addEventListener('pointermove',e=>{
+   if(!drag||e.pointerId!==drag.id||pinching)return;
+   const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+   drag.x=e.clientX;drag.y=e.clientY;
+   vp.scrollLeft-=dx;vp.scrollTop-=dy;
+   if(e.cancelable)e.preventDefault();
+ },{passive:false});
+ const stop=e=>{if(drag&&drag.id===e.pointerId){drag=null;try{if(vp.hasPointerCapture(e.pointerId))vp.releasePointerCapture(e.pointerId)}catch(_){}}};
+ vp.addEventListener('pointerup',stop);
+ vp.addEventListener('pointercancel',stop);
+ vp.addEventListener('lostpointercapture',e=>{if(drag?.id===e.pointerId)drag=null});
 }
 
 function activateBoardMatches(token,t){
@@ -778,8 +888,8 @@ function setupInlineScratch(){
     const status=document.getElementById('playStatus');if(status)status.textContent=`${t.pendingShown.length}/${pending.length} calls revealed · ${markCount(t).remaining} matches to scratch`;
     if(t.pendingShown.length===pending.length)handle('finishScratch');
   }
-  canvas.addEventListener('pointerdown',e=>{down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
-  canvas.addEventListener('pointermove',e=>{if(!down||complete)return;const p=point(e);erase(prev,p);prev=p;if(++moves%3===0)check();e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointerdown',e=>{if(panMode||pinching)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(panMode||pinching||!down||complete)return;const p=point(e);erase(prev,p);prev=p;if(++moves%3===0)check();e.preventDefault()},{passive:false});
   canvas.addEventListener('pointerup',e=>{if(!complete&&down){down=false;check()}e.preventDefault()},{passive:false});
   canvas.addEventListener('pointercancel',()=>{down=false});
  }
@@ -804,15 +914,15 @@ function collectHtml(){if(archiveOpen!==null)return archiveHtml();const p=projec
  h+=`<div class="duplicate-pouch"><div class="duplicate-head"><div><h3>Duplicate exchange</h3><p class="sub">Save three extras to earn another pack.</p></div><span class="pill">${S.duplicates} extras</span></div><div class="duplicate-tray" aria-label="${S.duplicates%3} of 3 duplicates toward an additional pack">${[0,1,2].map(i=>`<div class="duplicate-slot ${i<Math.min(S.duplicates,3)?'filled':''}">${i<Math.min(S.duplicates,3)?'▧':'+'}</div>`).join('')}</div><div class="duplicate-foot"><span class="sub">${S.duplicates>=3?`${Math.floor(S.duplicates/3)} exchange${Math.floor(S.duplicates/3)===1?'':'s'} ready`:`${3-S.duplicates} more to trade`} · extras carry over</span><button class="btn tiny alt" data-act="tradeDup" ${S.duplicates<3||complete?'disabled':''}>Trade 3</button></div></div><div class="row"><div><h3>Buy a mystery pack</h3><p class="sub">50 virtual coins · two random pieces</p></div><button class="btn tiny alt" data-act="buyPack" ${S.coins<PACK_COST||complete?'disabled':''}>Buy pack</button></div></div>`;
  return h+galleryHtml();
 }
-function walletHtml(){return `<div class="card"><div class="sectionline"><div><div class="kicker">Test the economy</div><h2>Walk → coins → scratch</h2></div></div><div class="callout gold">This version uses simulated steps, not real Apple Health data yet.</div><div class="kpi-row"><div class="kpi"><strong>${Math.floor(S.bank/RATE)}</strong><small>Exchange units</small></div><div class="kpi"><strong>${S.freeRounds}</strong><small>Free rounds</small></div><div class="kpi"><strong>${S.freeTickets}</strong><small>Free tickets</small></div></div><p class="label">Add pretend walking</p><div class="row" style="margin:10px 0 18px;justify-content:stretch"><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="547">+547 steps</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="1000">+1,000</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="6000">+6,000</button></div><div class="row" style="gap:8px"><button class="btn" style="flex:1" data-act="exchange" ${S.bank<RATE?'disabled':''}>Cash 547 → 10 coins</button><button class="btn alt" style="flex:1" data-act="exchangeAll" ${S.bank<RATE?'disabled':''}>Cash all available</button></div><p class="note" style="margin-top:10px">Leftover steps and coins carry over indefinitely. Redeemed steps cannot be used twice.</p></div><div class="card"><h3>Your game statistics</h3><div class="kpi-row"><div class="kpi"><strong>${S.stats.tickets}</strong><small>Tickets bought</small></div><div class="kpi"><strong>${S.stats.rounds}</strong><small>Rounds scratched</small></div><div class="kpi"><strong>${S.stats.projects}</strong><small>Projects finished</small></div></div><div class="row"><span class="sub">Coins from walking</span><strong>${S.stats.walkCoins}</strong></div><div class="rule"></div><div class="row"><span class="sub">Coins won in scratchers</span><strong>${S.stats.winCoins}</strong></div></div><div class="card soft"><h3>Save or reset</h3><p class="sub" style="margin:8px 0 12px">Progress is stored in this browser. Download a backup before clearing website data or moving to another browser.</p><div class="row"><button class="btn tiny alt" data-act="export">Export save</button><button class="btn tiny alt" data-act="import">Import save</button><button class="btn tiny ghost" data-act="reset">Reset demo</button></div><input type="file" id="restoreFile" accept="application/json,.json" style="display:none" aria-label="Choose saved game file"></div>`}
+function walletHtml(){return healthSyncHtml()+`<div class="card"><div class="sectionline"><div><div class="kicker">${S.liveMode?"Real step bank":"Test the economy"}</div><h2>Walk → coins → scratch</h2></div></div><div class="callout gold">${S.liveMode?"Your bank now uses real step totals received from the iPhone Shortcut.":"This version still uses simulated steps until you activate real tracking."}</div><div class="kpi-row"><div class="kpi"><strong>${Math.floor(S.bank/RATE)}</strong><small>Exchange units</small></div><div class="kpi"><strong>${S.freeRounds}</strong><small>Free rounds</small></div><div class="kpi"><strong>${S.freeTickets}</strong><small>Free tickets</small></div></div>${S.liveMode?"":`<p class="label">Add pretend walking</p><div class="row" style="margin:10px 0 18px;justify-content:stretch"><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="547">+547 steps</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="1000">+1,000</button><button class="btn alt" style="flex:1" data-act="addSteps" data-arg="6000">+6,000</button></div>`}<div class="row" style="gap:8px"><button class="btn" style="flex:1" data-act="exchange" ${S.bank<RATE?'disabled':''}>Cash 547 → 10 coins</button><button class="btn alt" style="flex:1" data-act="exchangeAll" ${S.bank<RATE?'disabled':''}>Cash all available</button></div><p class="note" style="margin-top:10px">Leftover steps and coins carry over indefinitely. Redeemed steps cannot be used twice.</p></div><div class="card"><h3>Your game statistics</h3><div class="kpi-row"><div class="kpi"><strong>${S.stats.tickets}</strong><small>Tickets bought</small></div><div class="kpi"><strong>${S.stats.rounds}</strong><small>Rounds scratched</small></div><div class="kpi"><strong>${S.stats.projects}</strong><small>Projects finished</small></div></div><div class="row"><span class="sub">Coins from walking</span><strong>${S.stats.walkCoins}</strong></div><div class="rule"></div><div class="row"><span class="sub">Coins won in scratchers</span><strong>${S.stats.winCoins}</strong></div></div><div class="card soft"><h3>Save or reset</h3><p class="sub" style="margin:8px 0 12px">Progress is stored in this browser. Download a backup before clearing website data or moving to another browser.</p><div class="row"><button class="btn tiny alt" data-act="export">Export save</button><button class="btn tiny alt" data-act="import">Import save</button><button class="btn tiny ghost" data-act="reset">Reset demo</button></div><input type="file" id="restoreFile" accept="application/json,.json" style="display:none" aria-label="Choose saved game file"></div>`}
 
 function render(){
  const root=document.getElementById('app'),playing=!!(view==='scratch'&&S.ticket&&!S.ticket.finished);
  root.classList.toggle('playing',playing);
- root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">DEMO V3.4</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.4 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.2 · ONE-FINGER PAN</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.2 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
- if(playing){fitGame();setupPinchZoom();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
+ if(playing){fitGame();setupPinchZoom();setupOneFingerPan();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
 }
 window.addEventListener('resize',()=>fitGame());
 function setupScratch(){
@@ -917,12 +1027,14 @@ function setupBoardScratch(){
     // partial scratch marks on other numbers. The next completed call/round updates it.
     if(left===0&&!t.pending){if(t.round>=5)return settleTicket();render()}
   }
-  canvas.addEventListener('pointerdown',e=>{if(pinching||complete)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
-  canvas.addEventListener('pointermove',e=>{if(!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;if(moves%3===0)check();e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointerdown',e=>{if(panMode||pinching||complete)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(panMode||!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;if(moves%3===0)check();e.preventDefault()},{passive:false});
   canvas.addEventListener('pointerup',e=>{if(down&&!complete){down=false;check()}e.preventDefault()},{passive:false});
   canvas.addEventListener('pointercancel',()=>{down=false});
  }
 }
+window.addEventListener('hashchange',()=>{if(/^#sssteps=/.test(location.hash)){checkHealthLink();render()}});
+checkHealthLink();
 render();
 })();
 
