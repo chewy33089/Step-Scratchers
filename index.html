@@ -439,6 +439,9 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 .live-play-commands .btn[disabled] {opacity:.65;color:#f7f7f5;background:#596273;}
 
 
+/* V3.5.4: keep WebKit scroll anchoring away from removable scratch canvases. */
+.game-viewport,.game-scaler,.game-stage,.token-field,.board-foil,.token-foil {overflow-anchor:none;}
+
 /* V3.5.2: one-finger pan on the card background; Pan mode makes every spot draggable. */
 .game-viewport {touch-action:none!important;}
 .gesture-hint {display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px;margin:0 0 4px;}
@@ -689,10 +692,29 @@ function settleTicket(){
  if(Math.random()<.025){S.freeTickets++;t.bonus.push('Free ticket')}
  S.history.unshift({type:t.type,prize:t.prize,when:new Date().toISOString()});S.history=S.history.slice(0,20);
  notice=t.prize?`Ticket complete! You won ${t.prize} virtual coins.`:'Ticket complete! No coin prize this time.';
- save();render();
+ save();
+ // Do not automatically replace the ticket screen at final completion.
+ // The player can choose to leave the completed ticket and view results.
+ const vp=document.getElementById('gameViewport');
+ if(view==='scratch'&&vp){
+  const position=rememberGamePan();
+  const counter=document.querySelector('.wallet .stat:nth-child(2) strong');
+  if(counter)counter.textContent=S.coins.toLocaleString();
+  const badge=document.querySelector('.live-play-head .pill');
+  if(badge)badge.textContent='Complete!';
+  const status=document.getElementById('playStatus');
+  if(status)status.textContent=t.prize?`Ticket complete · +${t.prize} coins earned`:'Ticket complete · no coin prize this time';
+  const controls=document.querySelector('.live-play-commands');
+  if(controls){
+   controls.innerHTML=`<button class="btn" data-act="viewResults">View ticket results</button>`;
+   controls.querySelector('button')?.addEventListener('click',()=>handle('viewResults'));
+  }
+  restoreGamePan(position);
+ }else render();
 }
 function setNotice(m){notice=m;render()}
 function handle(action,arg){
+ if(action==='viewResults'){return render()}
  if(action==='togglePan'){
   panMode=!panMode;
   // Update only the controls: rebuilding the board would erase partially scratched foil.
@@ -730,6 +752,7 @@ function handle(action,arg){
  }
  if(action==='finishScratch'){
   const t=S.ticket;if(!t||!t.pending)return;
+  const panBeforeFinish=rememberGamePan();
   t.lastReveal=[...t.pending];t.revealed.push(...t.pending);t.pending=null;t.pendingShown=[];t.round++;S.stats.rounds++;
   const messages=[];
   if(Math.random()<.085){S.freeRounds++;messages.push('Bonus: one free scratch round!')}
@@ -750,6 +773,7 @@ function handle(action,arg){
    refreshPlayState(t);
   }else render();
   if(t.round>=5&&remaining===0)settleTicket();
+  else restoreGamePan(panBeforeFinish);
   return;
  }
  if(action==='markBoard'){
@@ -850,6 +874,21 @@ function fitGame(anchor){
  if(width*scale<vp.clientWidth)scaler.style.marginLeft=`${(vp.clientWidth-width*scale)/2}px`;
  if(anchor) {vp.scrollLeft=Math.max(0,fx*width*scale-oldX);vp.scrollTop=Math.max(0,fy*height*scale-oldY)}
 }
+// Preserve the *pan offset*, not just the zoom factor, while the ticket changes.
+// On iOS WebKit removing the active scratch canvas can trigger scroll anchoring
+// after pointerup, moving the scroller to the beginning. Restoring after the
+// layout frame (as well as immediately) prevents that visible snap.
+function rememberGamePan(){
+ const vp=document.getElementById('gameViewport');
+ return vp?{vp,left:vp.scrollLeft,top:vp.scrollTop}:null;
+}
+function restoreGamePan(position){
+ if(!position)return;
+ const {vp,left,top}=position;
+ const restore=()=>{if(vp.isConnected){vp.scrollLeft=left;vp.scrollTop=top;}};
+ restore();
+ requestAnimationFrame(()=>{restore();requestAnimationFrame(restore)});
+}
 let pinching=false;
 function setupPinchZoom(){
  const vp=document.getElementById('gameViewport');if(!vp)return;
@@ -935,19 +974,26 @@ function setupInlineScratch(){
     return total?cleared/total:0;
   }
   function check(){if(complete||coverage()<.70)return;
-    complete=true;down=false;t.pendingShown=t.pendingShown||[];
-    if(!t.pendingShown.includes(token))t.pendingShown.push(token);
-    save();const wrap=canvas.parentElement;canvas.remove();
-    wrap?.classList.add('seen');
-    // A single revealed call unlocks its matches immediately. We add their invisible-to-the-eye
-    // scratch layers in place, without rerendering or coloring any eligible spaces.
-    activateBoardMatches(token,t);
-    const counter=document.getElementById('calledCounter');if(counter)counter.textContent=`${activeSeen(t).length} / ${t.type==='bingo'?29:20}`;
-    const status=document.getElementById('playStatus');if(status)status.textContent=`${t.pendingShown.length}/${pending.length} calls revealed · ${markCount(t).remaining} matches to scratch`;
-    if(t.pendingShown.length===pending.length)handle('finishScratch');
+    complete=true;down=false;
+    // Let the finger leave the foil before removing its canvas. WebKit can reset
+    // an overflow scroller when its captured touch target disappears mid-gesture.
+    const position=rememberGamePan();
+    requestAnimationFrame(()=>{
+     if(!canvas.isConnected)return;
+     t.pendingShown=t.pendingShown||[];
+     if(!t.pendingShown.includes(token))t.pendingShown.push(token);
+     save();const wrap=canvas.parentElement;canvas.remove();
+     wrap?.classList.add('seen');
+     // Unlock matching cells one at a time, without highlighting or auto-marking them.
+     activateBoardMatches(token,t);
+     const counter=document.getElementById('calledCounter');if(counter)counter.textContent=`${activeSeen(t).length} / ${t.type==='bingo'?29:20}`;
+     const status=document.getElementById('playStatus');if(status)status.textContent=`${t.pendingShown.length}/${pending.length} calls revealed · ${markCount(t).remaining} matches to scratch`;
+     if(t.pendingShown.length===pending.length)handle('finishScratch');
+     restoreGamePan(position);
+    });
   }
   canvas.addEventListener('pointerdown',e=>{if(panMode||pinching)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
-  canvas.addEventListener('pointermove',e=>{if(panMode||pinching||!down||complete)return;const p=point(e);erase(prev,p);prev=p;if(++moves%3===0)check();e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(panMode||pinching||!down||complete)return;const p=point(e);erase(prev,p);prev=p;e.preventDefault()},{passive:false});
   canvas.addEventListener('pointerup',e=>{if(!complete&&down){down=false;check()}e.preventDefault()},{passive:false});
   canvas.addEventListener('pointercancel',()=>{down=false});
  }
@@ -979,12 +1025,12 @@ function render(){
  const previousViewport=document.getElementById('gameViewport');
  const previousPosition=playing&&previousViewport?{left:previousViewport.scrollLeft,top:previousViewport.scrollTop}:null;
  root.classList.toggle('playing',playing);
- root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.3 · STEADY SCRATCH</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.3 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.5 · STEADY BOARD</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.5 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
  if(playing){fitGame();if(previousPosition){const vp=document.getElementById('gameViewport');vp.scrollLeft=previousPosition.left;vp.scrollTop=previousPosition.top;}setupPinchZoom();setupOneFingerPan();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
 }
-window.addEventListener('resize',()=>fitGame());
+window.addEventListener('resize',()=>{const position=rememberGamePan();fitGame();restoreGamePan(position)});
 function setupScratch(){
  const canvas=document.getElementById('foil');if(!canvas)return;
  const rect=canvas.getBoundingClientRect();if(rect.width<10)return;
@@ -1077,19 +1123,28 @@ function setupBoardScratch(){
   const point=e=>{const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}};
   function erase(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineWidth=Math.max(5,w*.30);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
   function coverage(){const px=ctx.getImageData(0,0,canvas.width,canvas.height).data;let cleared=0,total=0;for(let y=Math.floor(canvas.height*.18);y<canvas.height*.82;y+=2)for(let x=Math.floor(canvas.width*.15);x<canvas.width*.85;x+=2){total++;if(px[(y*canvas.width+x)*4+3]<50)cleared++}return total?cleared/total:0}
-  function check(){if(complete||coverage()<.6)return;complete=true;down=false;
-    if(!Array.isArray(t.marks))t.marks=[];
-    if(!t.marks.includes(key))t.marks.push(key);
-    canvas.parentElement.classList.remove('ready');canvas.parentElement.classList.add('marked');canvas.remove();save();
-    const left=markCount(t).remaining;
-    const status=document.getElementById('playStatus');if(status)status.textContent=t.pending?`${(t.pendingShown||[]).length}/${t.pending.length} calls revealed · ${left} matches left`:left?`Scratch ${left} more matching spot${left===1?'':'s'} on your card`:'All matches found!';
-    // Do not redraw the ticket while calls are still being scratched: that would erase
-    // partial scratch marks on other numbers. The next completed call/round updates it.
-    refreshPlayState(t);
-    if(left===0&&!t.pending&&t.round>=5)return settleTicket();
+  function check(){
+    if(complete||coverage()<.6)return;
+    complete=true;down=false;
+    const position=rememberGamePan();
+    // Mark only after pointerup; never remove the foil while a finger is moving.
+    requestAnimationFrame(()=>{
+      if(!canvas.isConnected)return;
+      if(!Array.isArray(t.marks))t.marks=[];
+      if(!t.marks.includes(key))t.marks.push(key);
+      canvas.parentElement?.classList.remove('ready');
+      canvas.parentElement?.classList.add('marked');
+      canvas.remove();save();
+      const left=markCount(t).remaining;
+      const status=document.getElementById('playStatus');
+      if(status)status.textContent=t.pending?`${(t.pendingShown||[]).length}/${t.pending.length} calls revealed · ${left} matches left`:left?`Scratch ${left} more matching spot${left===1?'':'s'} on your card`:'All matches found!';
+      refreshPlayState(t);
+      if(left===0&&!t.pending&&t.round>=5)settleTicket();
+      restoreGamePan(position);
+    });
   }
   canvas.addEventListener('pointerdown',e=>{if(panMode||pinching||complete)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
-  canvas.addEventListener('pointermove',e=>{if(panMode||!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;if(moves%3===0)check();e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(panMode||!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;e.preventDefault()},{passive:false});
   canvas.addEventListener('pointerup',e=>{if(down&&!complete){down=false;check()}e.preventDefault()},{passive:false});
   canvas.addEventListener('pointercancel',()=>{down=false});
  }
