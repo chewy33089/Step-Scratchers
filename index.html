@@ -438,6 +438,14 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 .live-play-footer {background:#242e40;border-color:#8b9da8;}
 .live-play-commands .btn[disabled] {opacity:.65;color:#f7f7f5;background:#596273;}
 
+
+/* V3.4: no match hints whatsoever. The board looks identical until YOU scratch a called value. */
+.stage-bingo-cell.ready,.stage-cross-grid .crosscell.ready,.stage-cross-bonus .bonus-char.ready {
+  background:inherit; border-color:inherit; color:inherit;
+}
+.stage-bingo-cell.ready{background:#304759!important;border-color:#7e9aaa!important;color:#fff9ed!important;}
+.stage-cross-grid .crosscell.ready{background:#3b4d63!important;color:#f7fcf9!important;border-color:#8196a6!important;}
+.stage-cross-bonus .bonus-char.ready{background:transparent!important;color:#f2dbab!important;}
 </style>
 </head>
 <body><div id="app"><div class="card"><h2>Step Scratchers</h2><p class="sub" style="margin-top:12px">This file preview cannot run the game. Open the published website in Chrome to play.</p></div></div>
@@ -550,7 +558,7 @@ function ensureMarks(t){
 ensureMarks(S.ticket);
 function expectedMarkKeys(t){
  if(!t)return [];
- const seen=new Set(t.revealed||[]),list=[];
+ const seen=new Set(activeSeen(t)),list=[];
  if(t.type==='bingo')t.data.cards.forEach((card,ci)=>card.forEach((n,i)=>{if(i!==12&&seen.has(n))list.push(markKeyB(ci,i))}));
  else {
   t.data.boards.forEach((board,bi)=>board.grid.forEach((row,r)=>row.forEach((l,c)=>{if(l&&seen.has(l))list.push(markKeyC(bi,r,c))})));
@@ -658,20 +666,20 @@ function activeBingoHtml(t){
    const hit=i=>i===12||marks.has(markKeyB(ci,i));let lines=0;
    for(let r=0;r<5;r++)if([0,1,2,3,4].every(c=>hit(r*5+c)))lines++;
    for(let c=0;c<5;c++)if([0,1,2,3,4].every(r=>hit(r*5+c)))lines++;
-   return `<div class="stage-bingo-card"><div class="stage-bingo-header"><strong>CARD ${ci+1}</strong><small>${lines} line${lines===1?'':'s'}</small></div><div class="stage-bingo-grid">${'BINGO'.split('').map(l=>`<div class="stage-bingo-letter">${l}</div>`).join('')}${cells.map((n,i)=>{const key=markKeyB(ci,i),done=marks.has(key),ready=i!==12&&seen.has(n)&&!done;return `<div class="stage-bingo-cell ${i===12?'free':done?'marked':ready?'ready':''}">${i===12?'FREE':n}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${n}" aria-label="Scratch Bingo ${n}"></canvas>`:''}</div>`}).join('')}</div><div class="stage-bingo-prize">LINE ${5+ci*3} COINS · CORNERS 25 · X 60</div></div>`;
+   return `<div class="stage-bingo-card"><div class="stage-bingo-header"><strong>CARD ${ci+1}</strong><small>${lines} line${lines===1?'':'s'}</small></div><div class="stage-bingo-grid">${'BINGO'.split('').map(l=>`<div class="stage-bingo-letter">${l}</div>`).join('')}${cells.map((n,i)=>{const key=markKeyB(ci,i),done=marks.has(key),ready=i!==12&&seen.has(n)&&!done;return `<div class="stage-bingo-cell ${i===12?'free':done?'marked':''}" ${i===12?'':`data-match-value="${n}" data-mark-key="${key}"`}>${i===12?'FREE':n}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${n}" data-foil-type="bingo" aria-label="Scratch Bingo ${n}"></canvas>`:''}</div>`}).join('')}</div><div class="stage-bingo-prize">LINE ${5+ci*3} COINS · CORNERS 25 · X 60</div></div>`;
  }).join('');
- return `<div class="stage-heading">BINGO × SIX</div><div class="stage-caller"><div class="stage-caller-header"><strong>SCRATCH CALLER'S NUMBERS</strong><small>${activeSeen(t).length} / 29</small></div>${block(t.data.source.slice(0,24),false)}<div class="stage-caller-header" style="margin-top:6px"><strong>BONUS NUMBERS</strong><small>last round</small></div>${block(t.data.source.slice(24),true)}</div><div class="stage-bingo-six">${cards}</div>`;
+ return `<div class="stage-heading">BINGO × SIX</div><div class="stage-caller"><div class="stage-caller-header"><strong>SCRATCH CALLER'S NUMBERS</strong><small id="calledCounter">${activeSeen(t).length} / 29</small></div>${block(t.data.source.slice(0,24),false)}<div class="stage-caller-header" style="margin-top:6px"><strong>BONUS NUMBERS</strong><small>last round</small></div>${block(t.data.source.slice(24),true)}</div><div class="stage-bingo-six">${cards}</div>`;
 }
 function activeCrosswordHtml(t){
  const seen=new Set(activeSeen(t)),marks=new Set(t.marks||[]);
  const grids=t.data.boards.map((b,bi)=>{
   const doneWords=manualCompletedWords(b,t,bi),found=new Set();
   for(const w of doneWords)for(let k=0;k<w.word.length;k++)found.add(`${w.r+(w.dir==='down'?k:0)},${w.c+(w.dir==='across'?k:0)}`);
-  return `<div class="stage-cross-paper"><strong>GAME ${bi+1} · ${doneWords.length} WORDS</strong><div class="stage-cross-grid ${bi?'secondary':''}" style="grid-template-columns:repeat(${b.grid.length},minmax(0,1fr))">${b.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';const key=markKeyC(bi,r,c),done=marks.has(key),ready=seen.has(l)&&!done;return `<div class="crosscell ${found.has(`${r},${c}`)?'found':done?'marked':ready?'ready':''}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" aria-label="Scratch crossword ${l}"></canvas>`:''}</div>`}).join('')).join('')}</div></div>`;
+  return `<div class="stage-cross-paper"><strong>GAME ${bi+1} · ${doneWords.length} WORDS</strong><div class="stage-cross-grid ${bi?'secondary':''}" style="grid-template-columns:repeat(${b.grid.length},minmax(0,1fr))">${b.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';const key=markKeyC(bi,r,c),done=marks.has(key),ready=seen.has(l)&&!done;return `<div class="crosscell ${found.has(`${r},${c}`)?'found':done?'marked':''}" data-match-value="${l}" data-mark-key="${key}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" data-foil-type="crossword" aria-label="Scratch crossword ${l}"></canvas>`:''}</div>`}).join('')).join('')}</div></div>`;
  }).join('');
  const bonus=Array.from(t.data.bonusWord).every((_,i)=>marks.has(markKeyBonus(i)));
- const bonusLetters=Array.from(t.data.bonusWord).map((l,i)=>{const key=markKeyBonus(i),done=marks.has(key),ready=seen.has(l)&&!done;return `<span class="bonus-char ${done?'marked':ready?'ready':''}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" aria-label="Scratch bonus word ${l}"></canvas>`:''}</span>`}).join('');
- return `<div class="stage-heading">CROSSWORD SCRATCHER</div><div class="stage-cross-bank"><div class="stage-caller-header"><strong>SCRATCH YOUR 20 LETTERS</strong><small>${activeSeen(t).length} / 20</small></div><div class="stage-letter-grid">${t.data.source.map(l=>gameToken(l,t)).join('')}</div></div><div class="stage-cross-columns">${grids}</div><div class="stage-cross-bonus"><strong>${bonusLetters}</strong><small>${bonus?'BONUS COMPLETE!':'SCRATCH MATCHES · +8 COINS'}</small></div>`;
+ const bonusLetters=Array.from(t.data.bonusWord).map((l,i)=>{const key=markKeyBonus(i),done=marks.has(key),ready=seen.has(l)&&!done;return `<span class="bonus-char ${done?'marked':''}" data-match-value="${l}" data-mark-key="${key}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" data-foil-type="bonus" aria-label="Scratch bonus word ${l}"></canvas>`:''}</span>`}).join('');
+ return `<div class="stage-heading">CROSSWORD SCRATCHER</div><div class="stage-cross-bank"><div class="stage-caller-header"><strong>SCRATCH YOUR 20 LETTERS</strong><small id="calledCounter">${activeSeen(t).length} / 20</small></div><div class="stage-letter-grid">${t.data.source.map(l=>gameToken(l,t)).join('')}</div></div><div class="stage-cross-columns">${grids}</div><div class="stage-cross-bonus"><strong>${bonusLetters}</strong><small>${bonus?'BONUS COMPLETE!':'SCRATCH MATCHES · +8 COINS'}</small></div>`;
 }
 function playHtml(t){
  const left=markCount(t).remaining;
@@ -682,7 +690,7 @@ function playHtml(t){
  t.round>=5?`<button class="btn" disabled>Finish scratching your matches</button>`:
  left?`<button class="btn" disabled>${left} matching spaces left</button>`:
  `<button class="btn" data-act="buyRound" ${S.coins<ROUND_COST&&S.freeRounds===0?'disabled':''}>${S.freeRounds>0?'Use free round':'Scratch next round · 10 coins'}</button>`;
- return `<div class="live-play"><div class="live-play-head"><strong>${TYPES[t.type].icon} ${TYPES[t.type].label} scratch ticket</strong><span class="pill">Round ${t.round+(t.pending?1:0)} / 5</span></div><div class="play-hint">Scratch your calls first, then find and scratch their matches on the card. Pinch with two fingers to zoom.</div><div class="game-viewport" id="gameViewport"><div class="game-scaler" id="gameScaler"><div class="game-stage" id="gameStage">${t.type==='bingo'?activeBingoHtml(t):activeCrosswordHtml(t)}<div class="stage-guide">Your matched spaces must be scratched by hand.</div></div></div></div><div class="live-play-footer"><div class="live-play-status" id="playStatus">${esc(status)}</div><div class="live-play-commands">${action}</div></div></div>`;
+ return `<div class="live-play"><div class="live-play-head"><strong>${TYPES[t.type].icon} ${TYPES[t.type].label} scratch ticket</strong><span class="pill">Round ${t.round+(t.pending?1:0)} / 5</span></div><div class="play-hint">Scratch any call, then scratch its matches whenever you like. No hints. Pinch to zoom.</div><div class="game-viewport" id="gameViewport"><div class="game-scaler" id="gameScaler"><div class="game-stage" id="gameStage">${t.type==='bingo'?activeBingoHtml(t):activeCrosswordHtml(t)}<div class="stage-guide">Your matched spaces must be scratched by hand.</div></div></div></div><div class="live-play-footer"><div class="live-play-status" id="playStatus">${esc(status)}</div><div class="live-play-commands">${action}</div></div></div>`;
 }
 function fitGame(anchor){
  const vp=document.getElementById('gameViewport'),stage=document.getElementById('gameStage'),scaler=document.getElementById('gameScaler');if(!vp||!stage||!scaler)return;
@@ -727,6 +735,19 @@ function setupPinchZoom(){
  vp.addEventListener('touchend',stop,{capture:true});vp.addEventListener('touchcancel',stop,{capture:true});
 }
 
+function activateBoardMatches(token,t){
+  const marked=new Set(t.marks||[]);
+  document.querySelectorAll('[data-match-value][data-mark-key]').forEach(cell=>{
+    if(cell.dataset.matchValue!==String(token))return;
+    const key=cell.dataset.markKey;
+    if(marked.has(key)||cell.querySelector('canvas.board-foil'))return;
+    const canvas=document.createElement('canvas');
+    canvas.className='board-foil';canvas.dataset.mark=key;canvas.dataset.markLabel=String(token);
+    canvas.dataset.foilType=key.startsWith('b:')?'bingo':key.startsWith('x:')?'bonus':'crossword';
+    canvas.setAttribute('aria-label','Scratch matching '+String(token));cell.appendChild(canvas);
+  });
+  setupBoardScratch();
+}
 function setupInlineScratch(){
  const t=S.ticket;if(!t?.pending)return;
  const pending=t.pending;
@@ -750,8 +771,11 @@ function setupInlineScratch(){
     if(!t.pendingShown.includes(token))t.pendingShown.push(token);
     save();const wrap=canvas.parentElement;canvas.remove();
     wrap?.classList.add('seen');
-    document.querySelectorAll(t.type==='bingo'?`[data-bingo-num="${token}"]`:`[data-cross-letter="${token}"]`).forEach(el=>el.classList.add(t.type==='bingo'?'hit':'called'));
-    const status=document.getElementById('playStatus');if(status)status.textContent=`${t.pendingShown.length} of ${pending.length} ${t.type==='bingo'?'numbers':'letters'} scratched`;
+    // A single revealed call unlocks its matches immediately. We add their invisible-to-the-eye
+    // scratch layers in place, without rerendering or coloring any eligible spaces.
+    activateBoardMatches(token,t);
+    const counter=document.getElementById('calledCounter');if(counter)counter.textContent=`${activeSeen(t).length} / ${t.type==='bingo'?29:20}`;
+    const status=document.getElementById('playStatus');if(status)status.textContent=`${t.pendingShown.length}/${pending.length} calls revealed · ${markCount(t).remaining} matches to scratch`;
     if(t.pendingShown.length===pending.length)handle('finishScratch');
   }
   canvas.addEventListener('pointerdown',e=>{down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
@@ -785,7 +809,7 @@ function walletHtml(){return `<div class="card"><div class="sectionline"><div><d
 function render(){
  const root=document.getElementById('app'),playing=!!(view==='scratch'&&S.ticket&&!S.ticket.finished);
  root.classList.toggle('playing',playing);
- root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">DEMO V3.3</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.3 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">DEMO V3.4</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.4 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
  if(playing){fitGame();setupPinchZoom();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
@@ -865,14 +889,20 @@ function setupScratch(){
 function setupBoardScratch(){
  const t=S.ticket;if(!t||t.finished)return;
  for(const canvas of document.querySelectorAll('canvas[data-mark]')){
+  if(canvas.dataset.scratchReady==='1')continue;
+  canvas.dataset.scratchReady='1';
   const key=canvas.dataset.mark,label=canvas.dataset.markLabel||'';
   const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(3,window.devicePixelRatio||1);
   if(w<8||h<8)continue;
   canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));
   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
-  ctx.fillStyle='#d2d8dd';ctx.fillRect(0,0,w,h);
-  for(let j=0;j<10;j++){ctx.fillStyle=j%2?'#ffffff33':'#44536622';ctx.fillRect(Math.random()*w,Math.random()*h,1.3,1.3)}
-  ctx.fillStyle='#273544';ctx.font=`900 ${Math.max(9,Math.min(14,h*.65))}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,w/2,h/2);
+  // Foil matches the ordinary board cell's color exactly: no hidden highlight/clue.
+  const isBingo=canvas.dataset.foilType==='bingo',isBonus=canvas.dataset.foilType==='bonus';
+  ctx.fillStyle=isBingo?'#304759':isBonus?'#514759':'#3b4d63';ctx.fillRect(0,0,w,h);
+  for(let j=0;j<10;j++){ctx.fillStyle=j%2?'#ffffff12':'#23334214';ctx.fillRect(Math.random()*w,Math.random()*h,1.3,1.3)}
+  ctx.fillStyle=isBingo?'#fff9ed':'#f7fcf9';
+  ctx.font=`900 ${Math.max(9,Math.min(isBingo?14:12,h*.65))}px system-ui`;
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,w/2,h/2);
   let down=false,prev=null,complete=false,moves=0;
   const point=e=>{const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}};
   function erase(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineWidth=Math.max(5,w*.30);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
@@ -882,8 +912,10 @@ function setupBoardScratch(){
     if(!t.marks.includes(key))t.marks.push(key);
     canvas.parentElement.classList.remove('ready');canvas.parentElement.classList.add('marked');canvas.remove();save();
     const left=markCount(t).remaining;
-    const status=document.getElementById('playStatus');if(status)status.textContent=left?`Scratch ${left} more matching spot${left===1?'':'s'} on your card`:'All matches found!';
-    if(left===0){if(t.round>=5)return settleTicket();render()}
+    const status=document.getElementById('playStatus');if(status)status.textContent=t.pending?`${(t.pendingShown||[]).length}/${t.pending.length} calls revealed · ${left} matches left`:left?`Scratch ${left} more matching spot${left===1?'':'s'} on your card`:'All matches found!';
+    // Do not redraw the ticket while calls are still being scratched: that would erase
+    // partial scratch marks on other numbers. The next completed call/round updates it.
+    if(left===0&&!t.pending){if(t.round>=5)return settleTicket();render()}
   }
   canvas.addEventListener('pointerdown',e=>{if(pinching||complete)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
   canvas.addEventListener('pointermove',e=>{if(!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;if(moves%3===0)check();e.preventDefault()},{passive:false});
