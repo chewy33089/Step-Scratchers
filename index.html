@@ -460,6 +460,13 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 .stage-cross-grid .crosscell.ready{background:#3b4d63!important;color:#f7fcf9!important;border-color:#8196a6!important;}
 .stage-cross-bonus .bonus-char.ready{background:transparent!important;color:#f2dbab!important;}
 
+/* V3.5.6: every unscratched space has uniform printed silver foil, even when not called.
+   The scratch track reveals the colored board beneath; locked areas are visually identical. */
+.board-foil.locked {pointer-events:none;}
+.stage-bingo-cell.ready {background:#b5ead4!important;border-color:#7e9aaa!important;color:#133b36!important;}
+.stage-cross-grid .crosscell.ready {background:#bdecd3!important;border-color:#8196a6!important;color:#163b31!important;}
+.stage-cross-bonus .bonus-char.ready {background:#c8e6c6!important;color:#193e35!important;}
+
 .health-connect { background:linear-gradient(145deg,#273c40,#2c344f);border-color:#5c8584; }
 .health-kicker { display:inline-flex;gap:6px;align-items:center;color:#b6f2d7;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px; }
 .health-summary { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0; }
@@ -832,7 +839,7 @@ function activeBingoHtml(t){
    const hit=i=>i===12||marks.has(markKeyB(ci,i));let lines=0;
    for(let r=0;r<5;r++)if([0,1,2,3,4].every(c=>hit(r*5+c)))lines++;
    for(let c=0;c<5;c++)if([0,1,2,3,4].every(r=>hit(r*5+c)))lines++;
-   return `<div class="stage-bingo-card"><div class="stage-bingo-header"><strong>CARD ${ci+1}</strong><small>${lines} line${lines===1?'':'s'}</small></div><div class="stage-bingo-grid">${'BINGO'.split('').map(l=>`<div class="stage-bingo-letter">${l}</div>`).join('')}${cells.map((n,i)=>{const key=markKeyB(ci,i),done=marks.has(key),ready=i!==12&&seen.has(n)&&!done;return `<div class="stage-bingo-cell ${i===12?'free':done?'marked':''}" ${i===12?'':`data-match-value="${n}" data-mark-key="${key}"`}>${i===12?'FREE':n}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${n}" data-foil-type="bingo" aria-label="Scratch Bingo ${n}"></canvas>`:''}</div>`}).join('')}</div><div class="stage-bingo-prize">LINE ${5+ci*3} COINS · CORNERS 25 · X 60</div></div>`;
+   return `<div class="stage-bingo-card"><div class="stage-bingo-header"><strong>CARD ${ci+1}</strong><small>${lines} line${lines===1?'':'s'}</small></div><div class="stage-bingo-grid">${'BINGO'.split('').map(l=>`<div class="stage-bingo-letter">${l}</div>`).join('')}${cells.map((n,i)=>{const key=markKeyB(ci,i),done=marks.has(key),ready=i!==12&&seen.has(n)&&!done;return `<div class="stage-bingo-cell ${i===12?'free':done?'marked':''}" ${i===12?'':`data-match-value="${n}" data-mark-key="${key}"`}>${i===12?'FREE':n}${i===12||done?'':`<canvas class="board-foil ${ready?'':'locked'}" ${ready?`data-mark="${key}"`:''} data-mark-key="${key}" data-mark-label="${n}" data-foil-type="bingo" aria-label="${ready?'Scratch':'Number'} Bingo ${n}"></canvas>`}</div>`}).join('')}</div><div class="stage-bingo-prize">LINE ${5+ci*3} COINS · CORNERS 25 · X 60</div></div>`;
  }).join('');
  return `<div class="stage-heading">BINGO × SIX</div><div class="stage-caller"><div class="stage-caller-header"><strong>SCRATCH CALLER'S NUMBERS</strong><small id="calledCounter">${activeSeen(t).length} / 29</small></div>${block(t.data.source.slice(0,24),false)}<div class="stage-caller-header" style="margin-top:6px"><strong>BONUS NUMBERS</strong><small>last round</small></div>${block(t.data.source.slice(24),true)}</div><div class="stage-bingo-six">${cards}</div>`;
 }
@@ -841,10 +848,10 @@ function activeCrosswordHtml(t){
  const grids=t.data.boards.map((b,bi)=>{
   const doneWords=manualCompletedWords(b,t,bi),found=new Set();
   for(const w of doneWords)for(let k=0;k<w.word.length;k++)found.add(`${w.r+(w.dir==='down'?k:0)},${w.c+(w.dir==='across'?k:0)}`);
-  return `<div class="stage-cross-paper"><strong>GAME ${bi+1} · ${doneWords.length} WORDS</strong><div class="stage-cross-grid ${bi?'secondary':''}" style="grid-template-columns:repeat(${b.grid.length},minmax(0,1fr))">${b.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';const key=markKeyC(bi,r,c),done=marks.has(key),ready=seen.has(l)&&!done;return `<div class="crosscell ${found.has(`${r},${c}`)?'found':done?'marked':''}" data-match-value="${l}" data-mark-key="${key}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" data-foil-type="crossword" aria-label="Scratch crossword ${l}"></canvas>`:''}</div>`}).join('')).join('')}</div></div>`;
+  return `<div class="stage-cross-paper"><strong>GAME ${bi+1} · ${doneWords.length} WORDS</strong><div class="stage-cross-grid ${bi?'secondary':''}" style="grid-template-columns:repeat(${b.grid.length},minmax(0,1fr))">${b.grid.map((row,r)=>row.map((l,c)=>{if(!l)return '<div class="crosscell blank"></div>';const key=markKeyC(bi,r,c),done=marks.has(key),ready=seen.has(l)&&!done;return `<div class="crosscell ${found.has(`${r},${c}`)?'found':done?'marked':''}" data-match-value="${l}" data-mark-key="${key}">${l}${done?'':`<canvas class="board-foil ${ready?'':'locked'}" ${ready?`data-mark="${key}"`:''} data-mark-key="${key}" data-mark-label="${l}" data-foil-type="crossword" aria-label="${ready?'Scratch':'Letter'} crossword ${l}"></canvas>`}</div>`}).join('')).join('')}</div></div>`;
  }).join('');
  const bonus=Array.from(t.data.bonusWord).every((_,i)=>marks.has(markKeyBonus(i)));
- const bonusLetters=Array.from(t.data.bonusWord).map((l,i)=>{const key=markKeyBonus(i),done=marks.has(key),ready=seen.has(l)&&!done;return `<span class="bonus-char ${done?'marked':''}" data-match-value="${l}" data-mark-key="${key}">${l}${ready?`<canvas class="board-foil" data-mark="${key}" data-mark-label="${l}" data-foil-type="bonus" aria-label="Scratch bonus word ${l}"></canvas>`:''}</span>`}).join('');
+ const bonusLetters=Array.from(t.data.bonusWord).map((l,i)=>{const key=markKeyBonus(i),done=marks.has(key),ready=seen.has(l)&&!done;return `<span class="bonus-char ${done?'marked':''}" data-match-value="${l}" data-mark-key="${key}">${l}${done?'':`<canvas class="board-foil ${ready?'':'locked'}" ${ready?`data-mark="${key}"`:''} data-mark-key="${key}" data-mark-label="${l}" data-foil-type="bonus" aria-label="${ready?'Scratch':'Letter'} bonus word ${l}"></canvas>`}</span>`}).join('');
  return `<div class="stage-heading">CROSSWORD SCRATCHER</div><div class="stage-cross-bank"><div class="stage-caller-header"><strong>SCRATCH YOUR 20 LETTERS</strong><small id="calledCounter">${activeSeen(t).length} / 20</small></div><div class="stage-letter-grid">${t.data.source.map(l=>gameToken(l,t)).join('')}</div></div><div class="stage-cross-columns">${grids}</div><div class="stage-cross-bonus"><strong>${bonusLetters}</strong><small>${bonus?'BONUS COMPLETE!':'SCRATCH MATCHES · +8 COINS'}</small></div>`;
 }
 function playHtml(t){
@@ -947,11 +954,18 @@ function activateBoardMatches(token,t){
   document.querySelectorAll('[data-match-value][data-mark-key]').forEach(cell=>{
     if(cell.dataset.matchValue!==String(token))return;
     const key=cell.dataset.markKey;
-    if(marked.has(key)||cell.querySelector('canvas.board-foil'))return;
-    const canvas=document.createElement('canvas');
-    canvas.className='board-foil';canvas.dataset.mark=key;canvas.dataset.markLabel=String(token);
-    canvas.dataset.foilType=key.startsWith('b:')?'bingo':key.startsWith('x:')?'bonus':'crossword';
-    canvas.setAttribute('aria-label','Scratch matching '+String(token));cell.appendChild(canvas);
+    if(marked.has(key))return;
+    let canvas=cell.querySelector('canvas.board-foil');
+    if(!canvas){
+      // Defensive fallback for a board from an older save/UI.
+      canvas=document.createElement('canvas');canvas.className='board-foil';
+      canvas.dataset.markKey=key;canvas.dataset.markLabel=String(token);
+      canvas.dataset.foilType=key.startsWith('b:')?'bingo':key.startsWith('x:')?'bonus':'crossword';
+      cell.appendChild(canvas);
+    }
+    // Same appearance before and after unlocking, so the call cannot reveal where matches are.
+    canvas.classList.remove('locked');canvas.dataset.mark=key;
+    canvas.setAttribute('aria-label','Scratch matching '+String(token));
   });
   setupBoardScratch();
 }
@@ -966,7 +980,7 @@ function setupInlineScratch(){
   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
   ctx.fillStyle='#c5c9c9';ctx.fillRect(0,0,w,h);
   for(let j=0;j<16;j++){const x=Math.random()*w,y=Math.random()*h;ctx.fillStyle=j%2?'#ffffff36':'#51565b22';ctx.fillRect(x,y,1.3,1.3)}
-  let down=false,prev=null,complete=false,moves=0;
+  let down=false,prev=null,complete=false,moves=0,panAtStart=null;
   function point(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}}
   function erase(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(6,w*.23);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
   function coverage(){const px=ctx.getImageData(0,0,canvas.width,canvas.height).data;let cleared=0,total=0;
@@ -977,7 +991,7 @@ function setupInlineScratch(){
     complete=true;down=false;
     // Let the finger leave the foil before removing its canvas. WebKit can reset
     // an overflow scroller when its captured touch target disappears mid-gesture.
-    const position=rememberGamePan();
+    const position=panAtStart||rememberGamePan();
     requestAnimationFrame(()=>{
      if(!canvas.isConnected)return;
      t.pendingShown=t.pendingShown||[];
@@ -992,7 +1006,10 @@ function setupInlineScratch(){
      restoreGamePan(position);
     });
   }
-  canvas.addEventListener('pointerdown',e=>{if(panMode||pinching)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
+  canvas.addEventListener('pointerdown',e=>{if(panMode||pinching)return;panAtStart=rememberGamePan();down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    // Some touch engines move the scroll container when pointer capture begins.
+    if(panAtStart){panAtStart.vp.scrollLeft=panAtStart.left;panAtStart.vp.scrollTop=panAtStart.top;}
+    erase(prev,prev);e.preventDefault()},{passive:false});
   canvas.addEventListener('pointermove',e=>{if(panMode||pinching||!down||complete)return;const p=point(e);erase(prev,p);prev=p;e.preventDefault()},{passive:false});
   canvas.addEventListener('pointerup',e=>{if(!complete&&down){down=false;check()}e.preventDefault()},{passive:false});
   canvas.addEventListener('pointercancel',()=>{down=false});
@@ -1025,7 +1042,7 @@ function render(){
  const previousViewport=document.getElementById('gameViewport');
  const previousPosition=playing&&previousViewport?{left:previousViewport.scrollLeft,top:previousViewport.scrollTop}:null;
  root.classList.toggle('playing',playing);
- root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.5 · STEADY BOARD</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.5 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.6 · SCRATCH FOIL</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.6 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
  if(playing){fitGame();if(previousPosition){const vp=document.getElementById('gameViewport');vp.scrollLeft=previousPosition.left;vp.scrollTop=previousPosition.top;}setupPinchZoom();setupOneFingerPan();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
@@ -1104,30 +1121,52 @@ function setupScratch(){
 }
 function setupBoardScratch(){
  const t=S.ticket;if(!t||t.finished)return;
- for(const canvas of document.querySelectorAll('canvas[data-mark]')){
-  if(canvas.dataset.scratchReady==='1')continue;
-  canvas.dataset.scratchReady='1';
+ for(const canvas of document.querySelectorAll('canvas.board-foil')){
   const key=canvas.dataset.mark,label=canvas.dataset.markLabel||'';
   const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(3,window.devicePixelRatio||1);
-  if(w<8||h<8)continue;
-  canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
-  // Foil matches the ordinary board cell's color exactly: no hidden highlight/clue.
-  const isBingo=canvas.dataset.foilType==='bingo',isBonus=canvas.dataset.foilType==='bonus';
-  ctx.fillStyle=isBingo?'#304759':isBonus?'#514759':'#3b4d63';ctx.fillRect(0,0,w,h);
-  for(let j=0;j<10;j++){ctx.fillStyle=j%2?'#ffffff12':'#23334214';ctx.fillRect(Math.random()*w,Math.random()*h,1.3,1.3)}
-  ctx.fillStyle=isBingo?'#fff9ed':'#f7fcf9';
-  ctx.font=`900 ${Math.max(9,Math.min(isBingo?14:12,h*.65))}px system-ui`;
-  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,w/2,h/2);
-  let down=false,prev=null,complete=false,moves=0;
+  if(w<7||h<7)continue;
+  if(canvas.dataset.foilPainted!=='1'){
+    // Paint EVERY unmarked number/letter the same silver, called or not.
+    // A new call therefore never highlights or gives away where matching spaces are.
+    canvas.dataset.foilPainted='1';
+    canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.scale(dpr,dpr);
+    const metal=ctx.createLinearGradient(0,0,w,h);
+    metal.addColorStop(0,'#e4e8e8');metal.addColorStop(.5,'#bfc6c9');metal.addColorStop(1,'#dce1e1');
+    ctx.fillStyle=metal;ctx.fillRect(0,0,w,h);
+    for(let j=0;j<Math.max(10,Math.round(w*h/40));j++){
+      ctx.fillStyle=j%2?'#ffffff45':'#4a58601c';
+      ctx.fillRect(Math.random()*w,Math.random()*h,1.2,1.2);
+    }
+    ctx.fillStyle='#263441';ctx.font=`900 ${Math.max(9,Math.min(canvas.dataset.foilType==='bingo'?14:12,h*.65))}px system-ui`;
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,w/2,h/2);
+  }
+  // Locked squares have the EXACT same painted finish but are not scratchable.
+  // Pointer-events:none also lets a finger pan the card from these spaces.
+  if(!key||canvas.dataset.scratchReady==='1')continue;
+  canvas.classList.remove('locked');canvas.dataset.scratchReady='1';
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  let down=false,prev=null,complete=false,pointerId=null,panAtStart=null;
   const point=e=>{const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*w/r.width,y:(e.clientY-r.top)*h/r.height}};
-  function erase(a,b){ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineWidth=Math.max(5,w*.30);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
-  function coverage(){const px=ctx.getImageData(0,0,canvas.width,canvas.height).data;let cleared=0,total=0;for(let y=Math.floor(canvas.height*.18);y<canvas.height*.82;y+=2)for(let x=Math.floor(canvas.width*.15);x<canvas.width*.85;x+=2){total++;if(px[(y*canvas.width+x)*4+3]<50)cleared++}return total?cleared/total:0}
+  function erase(a,b){
+    ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';
+    // Narrower strokes make the foil visibly wear off in tracks rather than vanish at a tap.
+    ctx.lineWidth=Math.max(2.7,w*.13);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+    ctx.beginPath();ctx.arc(b.x,b.y,Math.max(1.35,w*.065),0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  function coverage(){
+    const px=ctx.getImageData(0,0,canvas.width,canvas.height).data;let cleared=0,total=0;
+    for(let y=Math.floor(canvas.height*.13);y<canvas.height*.87;y+=2)
+      for(let x=Math.floor(canvas.width*.10);x<canvas.width*.90;x+=2){
+        total++;if(px[(y*canvas.width+x)*4+3]<50)cleared++;
+      }
+    return total?cleared/total:0;
+  }
   function check(){
-    if(complete||coverage()<.6)return;
+    if(complete||coverage()<.79)return;
     complete=true;down=false;
-    const position=rememberGamePan();
-    // Mark only after pointerup; never remove the foil while a finger is moving.
+    const position=panAtStart||rememberGamePan();
+    // Only finish once the finger has lifted; never remove a captured touch target mid-stroke.
     requestAnimationFrame(()=>{
       if(!canvas.isConnected)return;
       if(!Array.isArray(t.marks))t.marks=[];
@@ -1136,17 +1175,27 @@ function setupBoardScratch(){
       canvas.parentElement?.classList.add('marked');
       canvas.remove();save();
       const left=markCount(t).remaining;
-      const status=document.getElementById('playStatus');
-      if(status)status.textContent=t.pending?`${(t.pendingShown||[]).length}/${t.pending.length} calls revealed · ${left} matches left`:left?`Scratch ${left} more matching spot${left===1?'':'s'} on your card`:'All matches found!';
       refreshPlayState(t);
       if(left===0&&!t.pending&&t.round>=5)settleTicket();
       restoreGamePan(position);
     });
   }
-  canvas.addEventListener('pointerdown',e=>{if(panMode||pinching||complete)return;down=true;prev=point(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}erase(prev,prev);e.preventDefault()},{passive:false});
-  canvas.addEventListener('pointermove',e=>{if(panMode||!down||pinching||complete)return;const p=point(e);erase(prev,p);prev=p;moves++;e.preventDefault()},{passive:false});
-  canvas.addEventListener('pointerup',e=>{if(down&&!complete){down=false;check()}e.preventDefault()},{passive:false});
-  canvas.addEventListener('pointercancel',()=>{down=false});
+  canvas.addEventListener('pointerdown',e=>{
+    if(panMode||pinching||complete)return;
+    panAtStart=rememberGamePan();down=true;pointerId=e.pointerId;prev=point(e);
+    try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    if(panAtStart){panAtStart.vp.scrollLeft=panAtStart.left;panAtStart.vp.scrollTop=panAtStart.top;}
+    erase(prev,prev);e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener('pointermove',e=>{
+    if(panMode||pinching||!down||complete||e.pointerId!==pointerId)return;
+    const p=point(e);erase(prev,p);prev=p;e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener('pointerup',e=>{
+    if(down&&e.pointerId===pointerId&&!complete){down=false;pointerId=null;check()}
+    e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener('pointercancel',()=>{down=false;pointerId=null});
  }
 }
 window.addEventListener('hashchange',()=>{if(/^#sssteps=/.test(location.hash)){checkHealthLink();render()}});
