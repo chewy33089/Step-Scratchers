@@ -474,6 +474,19 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 .health-figure strong { font-size:24px;display:block;color:#f7faff; }
 .health-figure small { color:#bce4dd;font-size:11px;line-height:1.45;display:block;margin-top:4px; }
 .health-sync-status { border-radius:10px;border:1px solid #5d8477;padding:10px 12px;background:#24433a;color:#e0ffe8;font-size:12px;line-height:1.4;margin:10px 0; }
+
+/* V3.5.8: pack notices are fixed overlays; never resize or redraw the ticket. */
+.nav button[data-arg="collect"]{position:relative;white-space:nowrap;}
+.pack-nav-count{position:absolute;right:2px;top:-5px;min-width:19px;height:18px;padding:0 4px;border-radius:10px;background:#f5d28e;color:#262233;font-size:10px;line-height:18px;font-weight:900;text-align:center;box-shadow:0 1px 4px #0005;pointer-events:none;}
+.pack-nav-count[hidden]{display:none;}
+.pack-swoosh{position:fixed;z-index:1200;left:0;top:0;pointer-events:none;width:36px;height:36px;font-size:27px;display:grid;place-items:center;filter:drop-shadow(0 2px 5px #e7c78570);animation:packFlight .72s cubic-bezier(.24,.72,.36,1) both;}
+@keyframes packFlight{0%{opacity:0;transform:translate3d(var(--sx),var(--sy),0) scale(.78)}18%{opacity:1}55%{transform:translate3d(var(--mx),var(--my),0) scale(1.06)}100%{opacity:1;transform:translate3d(var(--ex),var(--ey),0) scale(.55)}}
+.pack-win-toast{position:fixed;z-index:1201;pointer-events:none;left:50%;top:max(6px,env(safe-area-inset-top));transform:translateX(-50%);max-width:calc(100vw - 20px);width:max-content;padding:8px 14px;background:#343d49;border:1px solid #edce8a;color:#fff3d8;border-radius:12px;box-shadow:0 4px 15px #0007;font-size:13px;font-weight:800;line-height:1.3;text-align:center;animation:packNotice .22s ease-out both;}
+.pack-win-toast small{display:block;color:#e1dccd;font-size:11px;font-weight:600;margin-top:2px;}
+@keyframes packNotice{from{opacity:0;transform:translate(-50%,-5px)}to{opacity:1;transform:translate(-50%,0)}}
+.nav button.pack-arrived{box-shadow:inset 0 0 0 1px #e9cb89;}
+@media(prefers-reduced-motion:reduce){.pack-swoosh{display:none!important}.pack-win-toast{animation:none!important;}}
+
 </style>
 </head>
 <body><div id="app"><div class="card"><h2>Step Scratchers</h2><p class="sub" style="margin-top:12px">This file preview cannot run the game. Open the published website in Chrome to play.</p></div></div>
@@ -481,6 +494,7 @@ body {background: radial-gradient(ellipse at 15% 0%,#343255 0%,transparent 44%),
 (()=>{
 'use strict';
 const KEY='step-scratchers-prototype-v1';
+const PACK_ROUND_CHANCE=.10, PACK_TICKET_CHANCE=.25, PACK_GUARANTEE=3;
 const RATE=547, COINS_PER_RATE=10, TICKET_COST=30, ROUND_COST=10, PACK_COST=50;
 const TYPES={bingo:{label:'Bingo',icon:'🔢'},crossword:{label:'Crossword',icon:'🔠'}};
 const PROJECTS=[
@@ -493,7 +507,7 @@ const PROJECTS=[
 ];
 const WORDS=['TREASURE','SPARK','LUCK','BONUS','COIN','GOLD','CARD','STAR','KEY','GEM','CROWN','PEARL','WALK','PRIZE','WIN','TICKET','GARDEN','SECRET','LUCKY','MYSTERY','DAWN','OCEAN','CLOUD','LIGHT','FLOWER','SHINE','DREAM','SMILE','SILVER','BRIGHT','RIBBON','HEART','GIFT','PEACE','STONE','SHELL','APE','SEA','RUN','HAT','TREE','NOTE','RING','TALL','WEAR','DICE','BIRD','TIDE','OIL','ICE','SAND','JAM','MAP','TEN','CAT','BLUE','FIVE','TWO','NEW','OWL','MOON','RAIN','TOY','BELL','FAN','GLOW','NEST','HOME','RIVER','ROSE','WIND','ECHO','NICE','FIRE','TINY','GLOW','READ','LAMP'];
 let view='scratch',selected='bingo',notice='',archiveOpen=null,zoomFactor=1,panMode=false,S=load(),healthPreview=null,healthSyncMessage='';
-function initial(){return {version:1,bank:6000,coins:0,freeRounds:0,freeTickets:0,ticket:null,projectIndex:0,owned:[],duplicates:0,packs:0,packResults:null,completed:[],stats:{tickets:0,rounds:0,walkCoins:0,winCoins:0,projects:0},history:[]}}
+function initial(){return {version:1,bank:6000,coins:0,freeRounds:0,freeTickets:0,ticket:null,projectIndex:0,owned:[],duplicates:0,packs:0,packDryTickets:0,packResults:null,completed:[],stats:{tickets:0,rounds:0,walkCoins:0,winCoins:0,projects:0},history:[]}}
 function freshRealGame(){const start=initial();start.bank=0;start.liveMode=true;start.healthDays={};start.lastHealthDay=null;start.lastHealthTotal=0;start.rulesVersion=2;return start;}
 function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===1&&Number.isFinite(x.bank)&&Number.isFinite(x.coins))return x;}catch(e){}return initial()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -585,7 +599,7 @@ function makeBoard(n, base, maxWords){
  return {grid,words:entries};
 }
 function makeCrossword(){return {boards:[makeBoard(13,'TREASURE',11),makeBoard(9,'WALK',6)],bonusWord:['LUCKY','PRIZE','GOLD','SMILE','BONUS','HEART'][rand(6)],source:shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')).slice(0,20)}}
-function makeTicket(type){return {id:Date.now(),type,round:0,pending:null,lastReveal:null,revealed:[],marks:[],data:type==='bingo'?makeBingo():makeCrossword(),finished:false,prize:0,bonus:[],freeRoundsSpent:0}}
+function makeTicket(type){return {id:Date.now(),type,round:0,pending:null,lastReveal:null,revealed:[],marks:[],data:type==='bingo'?makeBingo():makeCrossword(),finished:false,prize:0,bonus:[],freeRoundsSpent:0,packWon:false}}
 // All 12 standard Bingo lines: 5 rows, 5 columns, and both corner-to-corner diagonals.
 function bingoLineCount(hit){
  let lines=0;
@@ -698,10 +712,54 @@ function refreshPlayState(t){
   const bonusLabel=document.querySelector('.stage-cross-bonus small');if(bonusLabel)bonusLabel.textContent=bonusDone?'BONUS COMPLETE!':'SCRATCH MATCHES · +8 COINS';
  }
 }
+// A pack won in any round resets the ticket streak at settlement. The
+// guarantee never awards an extra pack if this ticket already won one.
+function packDryCount(state){return Math.max(0,Math.min(PACK_GUARANTEE-1,Math.trunc(Number(state.packDryTickets)||0)))}
+function grantTicketPack(state,t){state.packs++;t.packWon=true;}
+function rollRoundPack(state,t,roll=Math.random()){
+ if(roll>=PACK_ROUND_CHANCE)return false;
+ grantTicketPack(state,t);return true;
+}
+function rollFinalPack(state,t,roll=Math.random()){
+ const guaranteed=!t.packWon&&packDryCount(state)>=PACK_GUARANTEE-1;
+ const won=roll<PACK_TICKET_CHANCE||guaranteed;
+ if(won)grantTicketPack(state,t);
+ state.packDryTickets=t.packWon?0:packDryCount(state)+1;
+ return won;
+}
+function packBadgeHtml(){return `<span class="pack-nav-count" ${S.packs>0?'':'hidden'} aria-hidden="true">${S.packs>99?'99+':S.packs}</span>`;}
+function updatePackBadge(){
+ const tab=document.querySelector('.nav button[data-arg="collect"]');if(!tab)return;
+ const badge=tab.querySelector('.pack-nav-count');if(badge){badge.hidden=!(S.packs>0);badge.textContent=S.packs>99?'99+':String(S.packs);}
+ tab.setAttribute('aria-label',`Collect, ${S.packs} unopened mystery pack${S.packs===1?'':'s'}`);
+}
+let packToastTimer=null,packFlightTimer=null,packToastCount=0;
+function announcePack(){
+ updatePackBadge();
+ const tab=document.querySelector('.nav button[data-arg="collect"]');
+ if(!tab)return;
+ const oldToast=document.querySelector('.pack-win-toast');
+ packToastCount=oldToast?packToastCount+1:1;
+ oldToast?.remove();document.querySelector('.pack-swoosh')?.remove();
+ clearTimeout(packToastTimer);clearTimeout(packFlightTimer);
+ const toast=document.createElement('div');toast.className='pack-win-toast';toast.setAttribute('role','status');
+ toast.innerHTML=`📦 ${packToastCount===1?'Mystery pack won!':packToastCount+' mystery packs won!'}<small>Saved in Collect · open whenever you like</small>`;
+ document.body.appendChild(toast);
+ const r=tab.getBoundingClientRect();
+ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&r.bottom>0&&r.top<window.innerHeight){
+  const fly=document.createElement('div');fly.className='pack-swoosh';fly.setAttribute('aria-hidden','true');fly.textContent='📦';
+  const ex=r.left+r.width/2-18,ey=r.top+r.height/2-18;
+  const sx=Math.min(window.innerWidth-40,ex+100),sy=Math.min(window.innerHeight-40,ey+125);
+  for(const [name,value] of Object.entries({sx,sy,mx:ex+35,my:ey+24,ex,ey}))fly.style.setProperty('--'+name,value+'px');
+  document.body.appendChild(fly);
+  packFlightTimer=setTimeout(()=>{fly.remove();const current=document.querySelector('.nav button[data-arg="collect"]');current?.classList.add('pack-arrived');setTimeout(()=>current?.classList.remove('pack-arrived'),1000);},740);
+ }
+ packToastTimer=setTimeout(()=>{toast.remove();packToastCount=0;},3500);
+}
 function settleTicket(){
  const t=S.ticket;if(!t||t.finished||t.round<5||t.pending||markCount(t).remaining)return;
  t.finished=true;t.prize=getPrize(t);S.coins+=t.prize;S.stats.winCoins+=t.prize;
- if(Math.random()<.12){S.packs++;t.bonus.push('Mystery pack')}
+ const packWon=rollFinalPack(S,t);if(packWon)t.bonus.push('Mystery pack');
  if(Math.random()<.025){S.freeTickets++;t.bonus.push('Free ticket')}
  S.history.unshift({type:t.type,prize:t.prize,when:new Date().toISOString()});S.history=S.history.slice(0,20);
  notice=t.prize?`Ticket complete! You won ${t.prize} virtual coins.`:'Ticket complete! No coin prize this time.';
@@ -724,6 +782,7 @@ function settleTicket(){
   }
   restoreGamePan(position);
  }else render();
+ if(packWon)announcePack();
 }
 function setNotice(m){notice=m;render()}
 function handle(action,arg){
@@ -770,7 +829,7 @@ function handle(action,arg){
   const messages=[];
   if(Math.random()<.085){S.freeRounds++;messages.push('Bonus: one free scratch round!')}
   if(Math.random()<.07){S.coins+=5;S.stats.winCoins+=5;messages.push('Bonus: 5 coins!')}
-  if(Math.random()<.045){S.packs++;messages.push('Bonus: one mystery pack!')}
+  const packWon=rollRoundPack(S,t);if(packWon)messages.push('Bonus: one mystery pack!');
   const remaining=markCount(t).remaining;
   messages.push(`Now scratch ${remaining} matching space${remaining===1?'':'s'} on the card.`);
   notice=messages.join('  ');save();
@@ -785,6 +844,7 @@ function handle(action,arg){
    for(const token of t.lastReveal)activateBoardMatches(token,t);
    refreshPlayState(t);
   }else render();
+  if(packWon)announcePack();
   if(t.round>=5&&remaining===0)settleTicket();
   else restoreGamePan(panBeforeFinish);
   return;
@@ -1045,7 +1105,7 @@ function render(){
  const previousViewport=document.getElementById('gameViewport');
  const previousPosition=playing&&previousViewport?{left:previousViewport.scrollLeft,top:previousViewport.scrollTop}:null;
  root.classList.toggle('playing',playing);
- root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.7 · DIAGONAL BINGO</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect">📚 Collect</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.7 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
+ root.innerHTML=`<div class="topbar"><div><div class="kicker">Your walking-powered scratchers</div><div class="brand">STEP <span>SCRATCHERS</span></div></div><div class="demo">V3.5.8 · PACK REWARDS</div></div><div class="wallet"><div class="stat"><small>👟 Steps</small><strong>${S.bank.toLocaleString()}</strong></div><div class="stat"><small>🪙 Coins</small><strong>${S.coins.toLocaleString()}</strong></div></div><div class="nav"><button class="${view==='scratch'?'active':''}" data-act="tab" data-arg="scratch">🎟️ Scratch</button><button class="${view==='collect'?'active':''}" data-act="tab" data-arg="collect" aria-label="Collect, ${S.packs} unopened mystery packs">📚 Collect${packBadgeHtml()}</button><button class="${view==='wallet'?'active':''}" data-act="tab" data-arg="wallet">👟 Step Bank</button></div>${!playing&&notice?`<div class="notice" role="status">${esc(notice)}</div>`:''}${playing?playHtml(S.ticket):view==='scratch'?ticketHtml():view==='collect'?collectHtml():walletHtml()}<div class="bottom">Version 3.5.8 · No ads · No payments · No GPS · Virtual rewards only<br>One active scratcher · Endless tickets and rotating collections</div>`;
  for(const el of root.querySelectorAll('[data-act]'))el.addEventListener('click',()=>handle(el.dataset.act,el.dataset.arg));
  const f=document.getElementById('restoreFile');if(f)f.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.version!==1||!Number.isFinite(data.bank)||!Number.isFinite(data.coins)||!Array.isArray(data.owned)||!data.stats)throw new Error('Incompatible save');if(!confirm('Replace current progress with this saved file?'))return;S=data;S.rulesVersion=1;migrate();view='scratch';setNotice('Save imported. Your progress has been restored.')}catch(err){alert('Could not import this file: '+err.message)}});
  if(playing){fitGame();if(previousPosition){const vp=document.getElementById('gameViewport');vp.scrollLeft=previousPosition.left;vp.scrollTop=previousPosition.top;}setupPinchZoom();setupOneFingerPan();setupInlineScratch();setupBoardScratch();}else if(S.ticket?.pending&&view==='scratch')setupScratch();
